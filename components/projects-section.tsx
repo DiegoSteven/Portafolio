@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Github } from "lucide-react" // Removed ExternalLink as it's no longer needed
+import { Github, ExternalLink } from "lucide-react"
 
 interface Project {
   title: string
@@ -12,7 +12,6 @@ interface Project {
   technologies: string[]
   liveUrl?: string 
   githubUrl: string
-
 }
 
 export function ProjectsSection() {
@@ -41,73 +40,68 @@ export function ProjectsSection() {
       title: "AnalytiCore - Análisis de Texto con IA",
       description:
         "AnalytiCore es una aplicación web moderna que utiliza inteligencia artificial para el análisis avanzado de texto. Ofrece el análisis de sentimiento. Está desplegada en Render, por lo que puede experimentar cierta demora en la respuesta debido a que, en el plan gratuito, los servicios se ponen en pausa tras periodos de inactividad.",
-      image: "/ServiciosDesplegados.png?height=200&width=300",
+      image: "/ServiciosDesplegados.png",
       technologies: ["Spring Boot", "React", "Docker", "Java", "Python", "FastAPI"],
-      githubUrl: "https://github.com/DiegoSteven/AnalytiCore.git", // Updated to a more specific GitHub URL
-      liveUrl: "https://frontend-service-ppt4.onrender.com/" // ejemplo
-
-      
+      githubUrl: "https://github.com/DiegoSteven/AnalytiCore.git",
+      liveUrl: "https://frontend-service-ppt4.onrender.com/"
     },
     {
       title: "Servicio de Reportes - Sistema de Rastreo Vehicular",
       description:
         "Este servicio, desarrollado con Spring Boot, es una separación modular del componente de generación de reportes dentro del sistema monolítico Traccar. Proporciona funcionalidades completas para la gestión y elaboración de reportes basados en datos de dispositivos GPS. El servicio procesa información de posición, detecta viajes y paradas de vehículos, y genera reportes detallados en múltiples formatos, incluyendo exportación a Excel y envío automático por correo electrónico.",
-      image: "/ReporteRuta.png?height=200&width=300",
+      image: "/ReporteRuta.png",
       technologies: ["Java", "Spring Boot", "MySQL", "Postman","http","Spring Mail"],
-      githubUrl: "https://github.com/DiegoSteven/servicioReportes.git", // Updated to a more specific GitHub URL
+      githubUrl: "https://github.com/DiegoSteven/servicioReportes.git",
     },
     {
       title: "Sistema de Gestión de Pedidos - Arquitectura de Microservicios",
       description:
         "Este sistema es una plataforma completa de gestión de pedidos para una distribuidora de productos de consumo masivo, implementada bajo una arquitectura de microservicios utilizando Spring Boot y RabbitMQ para la comunicación asíncrona entre servicios. El frontend está desarrollado con Next.js y TypeScript.",
-      image: "/Pedidos.png?height=200&width=300",
+      image: "/Pedidos.png",
       technologies: ["Java", "Spring Boot", "MySQL", "RabbitMQ", "Docker","JWT", "Next.js", "React ", "Postman", "Tailwind", "Websocket"],
-      githubUrl: "https://github.com/DiegoSteven/sistema-gestion-pedidos", // Updated to a more specific GitHub URL
+      githubUrl: "https://github.com/DiegoSteven/sistema-gestion-pedidos",
     },
     {
-title: "Hospital Médico - Sistema de Gestión Hospitalaria",
+      title: "Hospital Médico - Sistema de Gestión Hospitalaria",
       description:
-        "Es un sistema  de gestión hospitalaria que permite administrar pacientes, servicios médicos, productos farmacéuticos, facturación y descargos médicos. El sistema implementa patrones de diseño avanzados y arquitectura REST para proporcionar una API robusta y escalable.",
-      image: "/sistemaHospitalario.png?height=100&width=150",
+        "Es un sistema de gestión hospitalaria que permite administrar pacientes, servicios médicos, productos farmacéuticos, facturación y descargos médicos. El sistema implementa patrones de diseño avanzados y arquitectura REST para proporcionar una API robusta y escalable.",
+      image: "/sistemaHospitalario.png",
       technologies: ["Spring Boot", "React", "SQLite", "Java", "Node"],
-      githubUrl: "https://github.com/DiegoSteven/Hospital_Medico.git", // Updated to a more specific GitHub URL
+      githubUrl: "https://github.com/DiegoSteven/Hospital_Medico.git",
     },
   ]
 
-  // Take only the first 4 projects
   const projects = allProjects.slice(0, 4)
 
   return (
-    <section ref={sectionRef} id="proyectos" className="py-20 bg-gray-50 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute top-10 left-10 w-32 h-32 border border-gray-200 rotate-12 animate-spin-slow opacity-20"></div>
-      <div className="absolute bottom-10 right-10 w-24 h-24 border border-gray-300 -rotate-12 animate-float opacity-30"></div>
+    <section ref={sectionRef} id="proyectos" className="py-12 sm:py-16 lg:py-20 bg-gray-50 relative overflow-hidden">
+      {/* Animated background elements - hidden on mobile */}
+      <div className="hidden md:block absolute top-10 left-10 w-32 h-32 border border-gray-200 rotate-12 animate-spin-slow opacity-20"></div>
+      <div className="hidden md:block absolute bottom-10 right-10 w-24 h-24 border border-gray-300 -rotate-12 animate-float opacity-30"></div>
 
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           {/* Section Title */}
           <div
-            className={`text-center mb-16 transform transition-all duration-1000 ${
+            className={`text-center mb-8 sm:mb-12 lg:mb-16 transform transition-all duration-1000 ${
               isVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
             }`}
           >
             <div className="inline-block">
-              <h2 className="text-4xl md:text-5xl font-bold text-black mb-4 relative">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-black mb-4 relative">
                 Mis Proyectos
-                <div className="absolute -top-2 -right-2 w-3 h-3 bg-black rounded-full animate-ping"></div>
+                <div className="absolute -top-2 -right-2 w-2 h-2 sm:w-3 sm:h-3 bg-black rounded-full animate-ping"></div>
               </h2>
               <div
-                className={`w-16 h-0.5 bg-black mx-auto transition-all duration-1000 delay-300 ${
+                className={`w-12 sm:w-16 h-0.5 bg-black mx-auto transition-all duration-1000 delay-300 ${
                   isVisible ? "scale-x-100" : "scale-x-0"
                 }`}
               ></div>
             </div>
           </div>
 
-          {/* Display the 4 projects */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {" "}
-            {/* Changed to 2 columns for 4 projects */}
+          {/* Projects Grid - Responsive */}
+          <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
             {projects.map((project, index) => (
               <Card
                 key={index}
@@ -116,51 +110,63 @@ title: "Hospital Médico - Sistema de Gestión Hospitalaria",
                 }`}
                 style={{ transitionDelay: `${700 + index * 200}ms` }}
               >
-              <div className="relative w-full overflow-hidden" style={{ paddingBottom: "56.25%" }}>
-                <img
-                  src={project.image || "/placeholder.svg"}
-                  alt={project.title}
-                  className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                />
-              </div>
+                {/* Image Container - Responsive */}
+                <div className="relative w-full overflow-hidden" style={{ paddingBottom: "56.25%" }}>
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="absolute top-0 left-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                </div>
 
-
-                <CardHeader>
-                  <CardTitle className="text-black text-xl">{project.title}</CardTitle>
+                <CardHeader className="px-4 sm:px-6 pt-4 sm:pt-6">
+                  <CardTitle className="text-black text-lg sm:text-xl leading-tight">
+                    {project.title}
+                  </CardTitle>
                 </CardHeader>
 
-                <CardContent className="space-y-4">
-                  <p className="text-gray-600 leading-relaxed">{project.description}</p>
+                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6 space-y-4">
+                  {/* Description - Responsive text */}
+                  <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
+                    {project.description}
+                  </p>
 
+                  {/* Technologies - Responsive grid */}
                   <div className="flex flex-wrap gap-2">
                     {project.technologies.map((tech) => (
-                      <span key={tech} className="px-3 py-1 border border-gray-300 text-xs text-gray-700 font-medium">
+                      <span 
+                        key={tech} 
+                        className="px-2 sm:px-3 py-1 border border-gray-300 text-xs text-gray-700 font-medium rounded"
+                      >
                         {tech}
                       </span>
                     ))}
                   </div>
 
-                  <div className="flex gap-3 pt-4">
-
-                      {/* Botón Ver Demo solo si existe liveUrl */}
+                  {/* Buttons - Responsive layout */}
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    {/* Live Demo Button */}
                     {project.liveUrl && (
                       <Button
                         size="sm"
                         variant="outline"
-                        className="flex-1 border-2 border-gray-300 hover:border-black hover:bg-black hover:text-white bg-transparent"
+                        className="flex-1 border-2 border-gray-300 hover:border-black hover:bg-black hover:text-white bg-transparent text-sm"
                         asChild
                       >
                         <a href={project.liveUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink size={16} className="mr-2" />
                           Ver Demo
                         </a>
                       </Button>
                     )}
-                    {/* Only GitHub button */}
+                    
+                    {/* GitHub Button */}
                     <Button
                       size="sm"
                       variant="outline"
-                      className="flex-1 border-2 border-gray-300 hover:border-black hover:bg-black hover:text-white bg-transparent"
-                      asChild // Use asChild to pass href to the underlying a tag
+                      className="flex-1 border-2 border-gray-300 hover:border-black hover:bg-black hover:text-white bg-transparent text-sm"
+                      asChild
                     >
                       <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                         <Github size={16} className="mr-2" />
@@ -172,8 +178,6 @@ title: "Hospital Médico - Sistema de Gestión Hospitalaria",
               </Card>
             ))}
           </div>
-
-          {/* Removed "Ver repositorios completos" button */}
         </div>
       </div>
     </section>
