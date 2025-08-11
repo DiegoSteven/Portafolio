@@ -111,6 +111,8 @@ export function HeroSection() {
               <a
                 key={label}
                 href={href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-12 h-12 border-2 border-gray-300 rounded-full flex items-center justify-center text-gray-600 hover:border-black hover:text-black transition-all duration-300 transform hover:scale-110 hover:rotate-12 group relative"
                 aria-label={label}
                 style={{ animationDelay: `${index * 100}ms` }}

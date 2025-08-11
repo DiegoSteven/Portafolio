@@ -55,14 +55,19 @@ export function Footer() {
             >
               <h4 className="font-bold mb-4">Enlaces</h4>
               <ul className="space-y-2 text-gray-400">
-                {["Inicio", "Sobre mí", "Proyectos", "Contacto"].map((item, index) => (
-                  <li key={item}>
+                {[
+                  { text: "Inicio", id: "inicio" },
+                  { text: "Sobre mí", id: "sobre-mi" },
+                  { text: "Proyectos", id: "proyectos" },
+                  { text: "Contacto", id: "contacto" }
+                ].map((item, index) => (
+                  <li key={item.text}>
                     <a
-                      href={`#${item.toLowerCase().replace(" ", "-")}`}
+                      href={`#${item.id}`}
                       className="hover:text-white transition-all duration-300 transform hover:translate-x-2 inline-block"
                       style={{ transitionDelay: `${index * 100}ms` }}
                     >
-                      {item}
+                      {item.text}
                     </a>
                   </li>
                 ))}
@@ -76,14 +81,19 @@ export function Footer() {
             >
               <h4 className="font-bold mb-4">Sígueme</h4>
               <ul className="space-y-2 text-gray-400">
-                {["GitHub", "LinkedIn"].map((item, index) => (
-                  <li key={item}>
+                {[
+                  { text: "GitHub", url: "https://github.com/DiegoSteven" },
+                  { text: "LinkedIn", url: "https://www.linkedin.com/in/diego-hidalgo-152a15182/" }
+                ].map((item, index) => (
+                  <li key={item.text}>
                     <a
-                      href="#"
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="hover:text-white transition-all duration-300 transform hover:translate-x-2 inline-block group"
                       style={{ transitionDelay: `${index * 100}ms` }}
                     >
-                      <span className="group-hover:animate-pulse">{item}</span>
+                      <span className="group-hover:animate-pulse">{item.text}</span>
                     </a>
                   </li>
                 ))}
