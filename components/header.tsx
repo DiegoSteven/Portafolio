@@ -22,9 +22,10 @@ export function Header() {
     setIsMenuOpen(false)
   }
 
+  // Temporalmente oculto - se puede reactivar cambiando hidden por block
   return (
     <header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+      className={`hidden fixed top-0 w-full z-50 transition-all duration-500 ${
         isScrolled
           ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg"
           : "bg-white/90 backdrop-blur-md border-b border-gray-100"

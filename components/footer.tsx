@@ -23,8 +23,9 @@ export function Footer() {
     return () => observer.disconnect()
   }, [])
 
+  // Temporalmente oculto - se puede reactivar cambiando hidden por block
   return (
-    <footer ref={footerRef} className="py-12 bg-black text-white relative overflow-hidden">
+    <footer ref={footerRef} className="hidden py-12 bg-black text-white relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer"></div>
 
