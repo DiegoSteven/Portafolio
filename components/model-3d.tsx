@@ -105,51 +105,63 @@ function Scene3D() {
   })
 
   useEffect(() => {
-    // Escuchar eventos de animación de cámara desde FloatingCards
-    const handleAnimateCamera = (event: CustomEvent) => {
-      const { targetPosition, targetCard, duration = 1.5 } = event.detail
+    // Escuchar eventos de rotación de cámara desde FloatingCards
+    const handleRotateCamera = (event: CustomEvent) => {
+      const { targetCard } = event.detail
       
-      if (orbitControlsRef.current) {
-        // Animar la cámara usando GSAP
-        if (typeof window !== 'undefined') {
-          import('gsap').then(({ gsap }) => {
-            // Deshabilitar controles durante la animación
-            orbitControlsRef.current.enabled = false
-            
-            // Obtener posición actual de la cámara
-            const currentPosition = {
-              x: camera.position.x,
-              y: camera.position.y,
-              z: camera.position.z
+      if (orbitControlsRef.current && typeof window !== 'undefined') {
+        import('gsap').then(({ gsap }) => {
+          // Ángulos exactos de cada tarjeta (en radianes)
+          const cardAngles: { [key: number]: number } = {
+            0: 0,                    // Sobre mí (0°)
+            1: Math.PI / 3,          // Experiencia (60°)
+            2: (2 * Math.PI) / 3,    // Proyectos (120°)
+            3: Math.PI,              // Educación (180°)
+            4: (4 * Math.PI) / 3,    // Habilidades (240°)
+            5: (5 * Math.PI) / 3     // Contacto (300°)
+          }
+          
+          const targetAngle = cardAngles[targetCard]
+          if (targetAngle === undefined) return
+          
+          // Deshabilitar controles durante animación
+          orbitControlsRef.current.enabled = false
+          
+          // Obtener ángulo actual
+          const currentAngle = orbitControlsRef.current.getAzimuthalAngle()
+          
+          // Calcular diferencia más corta
+          let angleDiff = targetAngle - currentAngle
+          if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI
+          if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI
+          
+          // Animar directamente al ángulo objetivo
+          gsap.to(orbitControlsRef.current, {
+            duration: 1.0,
+            ease: "power2.inOut",
+            onUpdate: function() {
+              const progress = this.progress()
+              const newAngle = currentAngle + (angleDiff * progress)
+              orbitControlsRef.current.setAzimuthalAngle(newAngle)
+              orbitControlsRef.current.update()
+            },
+            onComplete: () => {
+              // Asegurar que llegamos exactamente al objetivo
+              orbitControlsRef.current.setAzimuthalAngle(targetAngle)
+              orbitControlsRef.current.update()
+              orbitControlsRef.current.enabled = true
             }
-            
-            // Animar posición de la cámara con easing suave
-            gsap.to(camera.position, {
-              duration: duration,
-              x: targetPosition.x,
-              y: targetPosition.y,
-              z: targetPosition.z,
-              ease: "power2.inOut",
-              onUpdate: () => {
-                camera.lookAt(0, -2, 0) // Siempre mirar al avatar
-              },
-              onComplete: () => {
-                // Reactivar controles después de la animación
-                orbitControlsRef.current.enabled = true
-                orbitControlsRef.current.update()
-              }
-            })
           })
-        }
+        })
       }
     }
 
-    window.addEventListener('animateCamera', handleAnimateCamera as EventListener)
+    window.addEventListener('rotateCamera', handleRotateCamera as EventListener)
     
     return () => {
-      window.removeEventListener('animateCamera', handleAnimateCamera as EventListener)
+      window.removeEventListener('rotateCamera', handleRotateCamera as EventListener)
     }
-  }, [camera])
+  }, [camera, isMobile])
 
   return (
     <>

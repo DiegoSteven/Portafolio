@@ -50,12 +50,27 @@ export default function Portfolio() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
-      <Header />
-      <main>
-        <HeroSectionNew isModalOpen={isAnyModalOpen} />
-      </main>
-      <Footer />
+    <div 
+      className="min-h-screen overflow-x-hidden relative"
+      style={{
+        backgroundImage: 'url(/fondo.jpg)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        backgroundAttachment: 'fixed'
+      }}
+    >
+      {/* Overlay para mejorar legibilidad si es necesario */}
+      <div className="absolute inset-0 bg-black/20 z-0" />
+      
+      {/* Contenido principal */}
+      <div className="relative z-10">
+        <Header />
+        <main>
+          <HeroSectionNew isModalOpen={isAnyModalOpen} />
+        </main>
+        <Footer />
+      </div>
       
       {/* Todos los modales */}
       <AboutModal 
