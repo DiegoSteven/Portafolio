@@ -9,17 +9,27 @@ interface AppWrapperProps {
 
 export function AppWrapper({ children }: AppWrapperProps) {
   const [isLoading, setIsLoading] = useState(true)
+  const [showContent, setShowContent] = useState(false)
 
   const handleLoadingComplete = () => {
-    setIsLoading(false)
+    // Pequeño delay para asegurar transición suave
+    setTimeout(() => {
+      setIsLoading(false)
+      // Mostrar contenido después de que se oculte la pantalla de carga
+      setTimeout(() => {
+        setShowContent(true)
+      }, 100)
+    }, 200)
   }
 
   return (
-    <>
+    <div className="bg-slate-900 min-h-screen">
       {isLoading && <LoadingScreen onLoadingComplete={handleLoadingComplete} />}
-      <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-        {children}
-      </div>
-    </>
+      {!isLoading && (
+        <div className={`transition-opacity duration-700 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+          {children}
+        </div>
+      )}
+    </div>
   )
 }

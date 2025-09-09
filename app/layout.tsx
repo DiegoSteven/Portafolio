@@ -15,17 +15,21 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="bg-slate-900">
       <head>
         <style>{`
 html {
   font-family: ${GeistSans.style.fontFamily};
   --font-sans: ${GeistSans.variable};
   --font-mono: ${GeistMono.variable};
+  background-color: rgb(15 23 42) !important;
+}
+body {
+  background-color: rgb(15 23 42) !important;
 }
         `}</style>
       </head>
-      <body>
+      <body className="bg-slate-900">
         <AppWrapper>
           {children}
         </AppWrapper>

@@ -104,6 +104,17 @@ function FloatingCard({ card, cameraAngle }: {
   const meshRef = useRef<THREE.Group>(null)
   const cardRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
   
   // Función para manejar el clic en la tarjeta
   const handleCardClick = () => {
@@ -124,9 +135,9 @@ function FloatingCard({ card, cameraAngle }: {
     }
   }
   
-  // Configuración del carrusel circular con órbita fija - radio aumentado para tarjetas más grandes
-  const radius = 10 // Radio del círculo aumentado para acomodar tarjetas más grandes
-  const centerPosition = [0, 0.5, 0] // Posición del centro (avatar) - más centrado
+  // Configuración del carrusel circular optimizada para móviles
+  const radius = isMobile ? 8 : 10 // Radio más pequeño en móviles
+  const centerPosition = [0, 0.5, 0] // Posición del centro (avatar)
   
   // Posición fija de la tarjeta en el espacio 3D (NO rota con el avatar)
   const fixedAngle = card.angle // Ángulo fijo en el espacio
@@ -259,8 +270,8 @@ function FloatingCard({ card, cameraAngle }: {
         transform
         occlude
         style={{
-          width: `${260}px`, // Tamaño fijo 
-          height: `${180}px`, // Altura fija 
+          width: `${isMobile ? 200 : 260}px`, // Más pequeño en móviles
+          height: `${isMobile ? 140 : 180}px`, // Más pequeño en móviles 
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -281,7 +292,7 @@ function FloatingCard({ card, cameraAngle }: {
           overflow: 'hidden',
           border: 'none',
           boxSizing: 'border-box',
-          transform: `scale(${1 + centerProgress * 0.15})`, // Escala aplicada aquí
+          transform: `scale(${1 + centerProgress * (isMobile ? 0.08 : 0.15)})`, // Menos escala en móviles
           transition: 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición más suave y elegante
           boxShadow: centerProgress > 0 
             ? `0 ${8 + centerProgress * 20}px ${16 + centerProgress * 30}px rgba(0, 0, 0, 0.2)` 
@@ -433,33 +444,14 @@ export function FloatingCards({ cameraAngle }: { cameraAngle: number }) {
     const targetCard = portfolioCards.find(card => card.id === cardId)
     if (!targetCard) return
 
-    // Calcular el ángulo de la cámara necesario para centrar la carta
-    const targetAngle = targetCard.angle
+    // Encontrar el índice de la tarjeta objetivo
+    const cardIndex = portfolioCards.findIndex(card => card.id === cardId)
     
-    // Calcular la diferencia de ángulo más corta (considerando que es circular)
-    let angleDiff = targetAngle - cameraAngle
-    
-    // Normalizar la diferencia para tomar el camino más corto
-    while (angleDiff > 180) angleDiff -= 360
-    while (angleDiff < -180) angleDiff += 360
-    
-    // Calcular el nuevo ángulo de la cámara
-    const newCameraAngle = cameraAngle + angleDiff
-    
-    // Convertir a radianes para posicionar la cámara
-    const angleRad = (newCameraAngle * Math.PI) / 180
-    const radius = 25 // Radio de la cámara (debe coincidir con la distancia en OrbitControls)
-    
-    const targetX = Math.sin(angleRad) * radius
-    const targetZ = Math.cos(angleRad) * radius
-    const targetY = 8 // Altura de la cámara
-
-    // Dispatch evento para animar la cámara suavemente
-    window.dispatchEvent(new CustomEvent('animateCamera', {
+    // En lugar de calcular ángulos, enviar directamente el índice
+    // para que model-3d.tsx maneje la rotación natural
+    window.dispatchEvent(new CustomEvent('rotateCamera', {
       detail: { 
-        targetPosition: { x: targetX, y: targetY, z: targetZ },
-        targetCard: cardId,
-        duration: Math.abs(angleDiff) > 90 ? 2.0 : 1.2 // Más tiempo para giros largos
+        targetCard: cardIndex
       }
     }))
   }

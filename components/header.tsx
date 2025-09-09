@@ -33,6 +33,18 @@ export function Header() {
     { id: "contact", label: "Contacto", icon: MessageCircle, color: "#f97316" }
   ]
 
+  const getItemDescription = (itemId: string) => {
+    const descriptions: { [key: string]: string } = {
+      about: "Conoce mi historia",
+      experience: "Mi trayectoria profesional", 
+      skills: "Tecnologías y herramientas",
+      projects: "Mis trabajos destacados",
+      education: "Formación académica",
+      contact: "Ponte en contacto"
+    }
+    return descriptions[itemId] || ""
+  }
+
   return (
     <header
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
@@ -94,34 +106,83 @@ export function Header() {
           </Button>
         </div>
 
-        {/* Mobile Navigation */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-500 ${
-            isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-          }`}
-        >
-          <nav className="mt-4 pb-4 space-y-2 border-t border-white/20 pt-4">
-            {navItems.map((item, index) => {
-              const IconComponent = item.icon
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => navigateToCard(item.id)}
-                  className="flex items-center gap-3 w-full text-left text-white hover:bg-white/20 transition-all duration-300 py-3 px-4 rounded-lg font-medium transform hover:translate-x-2"
-                  style={{
-                    animationDelay: `${index * 100}ms`,
-                    transform: isMenuOpen ? "translateX(0)" : "translateX(-20px)",
-                    opacity: isMenuOpen ? 1 : 0,
-                    transition: `all 0.3s ease ${index * 100}ms`,
-                  }}
+        {/* Mobile Navigation - Redesigned */}
+        {isMenuOpen && (
+          <div className="lg:hidden fixed inset-0 top-0 z-50">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/80 backdrop-blur-md"
+              onClick={() => setIsMenuOpen(false)}
+            />
+            
+            {/* Menu Content */}
+            <div className="relative min-h-screen flex flex-col">
+              {/* Header del menú */}
+              <div className="flex items-center justify-between p-6 border-b border-white/10">
+                <div className="text-xl font-light text-white">Navegación</div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20 rounded-full"
+                  onClick={() => setIsMenuOpen(false)}
                 >
-                  <IconComponent size={20} style={{ color: item.color }} />
-                  {item.label}
-                </button>
-              )
-            })}
-          </nav>
-        </div>
+                  <X size={24} />
+                </Button>
+              </div>
+
+              {/* Navigation Items */}
+              <nav className="flex-1 px-6 py-8">
+                <div className="space-y-1">
+                  {navItems.map((item, index) => {
+                    const IconComponent = item.icon
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => navigateToCard(item.id)}
+                        className="group flex items-center gap-4 w-full text-left py-4 px-4 rounded-xl transition-all duration-300 hover:bg-white/10 active:bg-white/20"
+                        style={{
+                          animationDelay: `${index * 50}ms`,
+                        }}
+                      >
+                        <div 
+                          className="flex items-center justify-center w-12 h-12 rounded-full bg-white/10 group-hover:bg-white/20 transition-all duration-300"
+                          style={{ backgroundColor: `${item.color}20` }}
+                        >
+                          <IconComponent 
+                            size={20} 
+                            style={{ color: item.color }}
+                            className="group-hover:scale-110 transition-transform duration-300"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-white text-lg font-medium group-hover:text-white/90 transition-colors duration-300">
+                            {item.label}
+                          </div>
+                          <div className="text-white/50 text-sm">
+                            {getItemDescription(item.id)}
+                          </div>
+                        </div>
+                        <div className="text-white/30 group-hover:text-white/60 transition-colors duration-300">
+                          →
+                        </div>
+                      </button>
+                    )
+                  })}
+                </div>
+              </nav>
+
+              {/* Footer del menú */}
+              <div className="p-6 border-t border-white/10">
+                <div className="text-center text-white/50 text-sm">
+                  Diego Steven Hidalgo
+                </div>
+                <div className="text-center text-white/30 text-xs mt-1">
+                  Full Stack Developer
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )
