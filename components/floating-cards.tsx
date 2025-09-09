@@ -23,6 +23,7 @@ interface PortfolioCard {
   content: string
   index: number
   angle: number
+  backgroundImage?: string // Nueva propiedad para imagen de fondo
 }
 
 // Datos de las tarjetas del portafolio en órbita circular
@@ -33,9 +34,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: User,
     color: "#3b82f6",
     description: "Full Stack Developer",
-    content: "Creando soluciones innovadoras",
+    content: "Ver más",
     index: 0,
-    angle: 0
+    angle: 0,
+    backgroundImage: "/compe.jpg" // Imagen de fondo para "Sobre Mí"
   },
   {
     id: "experience",
@@ -43,9 +45,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: Briefcase,
     color: "#10b981",
     description: "2+ años",
-    content: "Desarrollo web y móvil",
+    content: "Ver más",
     index: 1,
-    angle: 60
+    angle: 60,
+    backgroundImage: "/Experiencia.jpg" // Descomenta y agrega tu imagen
   },
   {
     id: "skills",
@@ -53,9 +56,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: Code,
     color: "#8b5cf6",
     description: "Tecnologías",
-    content: "React, Node.js, Python",
+    content: "Ver más",
     index: 2,
-    angle: 120
+    angle: 120,
+    backgroundImage: "/skills.jpg" // Descomenta y agrega tu imagen
   },
   {
     id: "projects",
@@ -63,9 +67,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: FolderOpen,
     color: "#ef4444",
     description: "Innovadores",
-    content: "Apps con IA",
+    content: "Ver más",
     index: 3,
-    angle: 180
+    angle: 180,
+    backgroundImage: "/proyectos.jpg" // Descomenta y agrega tu imagen
   },
   {
     id: "education",
@@ -73,9 +78,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: GraduationCap,
     color: "#6366f1",
     description: "Universidad ESPE",
-    content: "Ingeniería en Software",
+    content: "Ver más",
     index: 4,
-    angle: 240
+    angle: 240,
+    backgroundImage: "/educacion.jpg" // Descomenta y agrega tu imagen
   },
   {
     id: "contact",
@@ -83,9 +89,10 @@ export const portfolioCards: PortfolioCard[] = [
     icon: MessageCircle,
     color: "#f97316",
     description: "Conectemos",
-    content: "¡Hablemos!",
+    content: "Ver más",
     index: 5,
-    angle: 300
+    angle: 300,
+    backgroundImage: "/contacto.jpg" // Descomenta y agrega tu imagen
   }
 ]
 
@@ -94,6 +101,31 @@ function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle:
   const meshRef = useRef<THREE.Group>(null)
   const cardRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
+  
+  // Función para manejar el clic en la tarjeta
+  const handleCardClick = () => {
+    // Mapear los IDs de las tarjetas a los IDs de las secciones
+    const sectionMap: { [key: string]: string } = {
+      'about': 'sobre-mi',
+      'experience': 'experiencia', 
+      'skills': 'habilidades',
+      'projects': 'proyectos',
+      'education': 'educacion',
+      'contact': 'contacto'
+    }
+    
+    const targetSection = sectionMap[card.id]
+    if (targetSection) {
+      // Scroll suave a la sección correspondiente
+      const element = document.getElementById(targetSection)
+      if (element) {
+        element.scrollIntoView({ 
+          behavior: 'smooth',
+          block: 'start'
+        })
+      }
+    }
+  }
   
   // Configuración del carrusel circular con órbita fija - radio aumentado para tarjetas más grandes
   const radius = 10 // Radio del círculo aumentado para acomodar tarjetas más grandes
@@ -121,8 +153,8 @@ function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle:
   
   // Determinar la visibilidad basada en la proximidad al centro de la vista
   const isCenter = normalizedDiff <= 15 // ±15° del centro de la vista
-  const isSide = normalizedDiff > 15 && normalizedDiff <= 90 // Laterales visibles
-  const isBack = normalizedDiff > 90 // Atrás, menos visible
+  const isSide = normalizedDiff > 15 && normalizedDiff <= 75 // Laterales visibles (rango más pequeño)
+  const isBack = normalizedDiff > 75 // Atrás, completamente oculto (más estricto)
   
   // Calcular progreso suave para transiciones - crecimiento más notorio y elegante
   let centerProgress = 0
@@ -140,21 +172,19 @@ function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle:
   let verticalOffset = 0
   let cardOpacity = 1.0
   
-  // Definir zonas del carrusel vertical - transiciones más suaves y elegantes
-  if (normalizedDiff <= 75) {
-    // Zona de entrada más amplia: viene desde muy abajo de la pantalla completa
-    const enterProgress = Math.max(0, (75 - normalizedDiff) / 75) // De 0 a 1 (rango más amplio)
-    // Curva suave para entrada más elegante
-    const smoothEnterProgress = 1 - Math.pow(1 - enterProgress, 3) // Curva cúbica suave
-    verticalOffset = (1 - smoothEnterProgress) * -15 // Viene desde -15 unidades
-    cardOpacity = smoothEnterProgress // Aparece gradualmente con curva suave
-  } else if (normalizedDiff > 105) {
-    // Zona de salida más amplia: se va hacia muy arriba de la pantalla completa
-    const exitProgress = Math.max(0, (normalizedDiff - 105) / 75) // De 0 a 1 (rango más amplio)
-    // Curva suave para salida más elegante
-    const smoothExitProgress = Math.pow(exitProgress, 3) // Curva cúbica suave
-    verticalOffset = smoothExitProgress * 15 // Se va hacia +15 unidades
-    cardOpacity = Math.max(0, 1 - smoothExitProgress) // Desaparece gradualmente con curva suave
+  // Si está detrás, ocultar completamente
+  if (isBack) {
+    cardOpacity = 0
+  } else {
+    // Definir zonas del carrusel vertical - transiciones más suaves y elegantes
+    if (normalizedDiff <= 75) {
+      // Zona de entrada más amplia: viene desde muy abajo de la pantalla completa
+      const enterProgress = Math.max(0, (75 - normalizedDiff) / 75) // De 0 a 1 (rango más amplio)
+      // Curva suave para entrada más elegante
+      const smoothEnterProgress = 1 - Math.pow(1 - enterProgress, 3) // Curva cúbica suave
+      verticalOffset = (1 - smoothEnterProgress) * -15 // Viene desde -15 unidades
+      cardOpacity = smoothEnterProgress // Aparece gradualmente con curva suave
+    }
   }
   
   const sideProgress = isSide ? Math.max(0, (90 - normalizedDiff) / 60) : 0
@@ -211,114 +241,153 @@ function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle:
       ref={meshRef}
       onPointerEnter={() => setHovered(true)}
       onPointerLeave={() => setHovered(false)}
-      visible={true} // Siempre visible
+      onClick={handleCardClick}
+      visible={!isBack && cardOpacity > 0} // Ocultar cuando está detrás del avatar O cuando opacidad es 0
     >
       {/* Tarjeta principal con proporciones correctas */}
       <mesh ref={cardRef}>
-        <planeGeometry args={[5.5 * (1 + centerProgress), 4 * (1 + centerProgress)]} />
+        <planeGeometry args={[4.5 * (1 + centerProgress * 0.1), 3.2 * (1 + centerProgress * 0.1)]} />
         <meshStandardMaterial 
           color="#ffffff"
           transparent
-          opacity={(0.95 + (centerProgress * 0.05)) * cardOpacity} // Aplicar opacidad del carrusel vertical
-          roughness={0.1 - (centerProgress * 0.08)} // Superficie más pulida cuando está centrada (más notorio)
+          opacity={0.1 * cardOpacity} // Muy transparente para que solo se vea el contenido HTML
+          roughness={0.1 - (centerProgress * 0.08)} // Superficie más pulida cuando está centrada
           metalness={0.1 + (centerProgress * 0.15)} // Efecto metálico más notorio cuando está centrada
-          side={THREE.DoubleSide}
         />
       </mesh>
 
       {/* Contenido HTML con perspectiva 3D corregida */}
       <Html
-        position={[0, 0, 0.03]}
+        position={[0, 0, 0.01]} // Posición más cerca del mesh
         transform
         occlude
         style={{
-          width: `${320 * (1 + centerProgress)}px`, // Contenedor crece muy poco
-          height: `${240 * (1 + centerProgress)}px`, // Altura crece proporcionalmente muy poco
+          width: `${260}px`, // Tamaño fijo 
+          height: `${180}px`, // Altura fija 
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#1f2937',
+          color: card.backgroundImage ? '#ffffff' : '#1f2937', // Texto blanco si hay imagen de fondo
           textAlign: 'center',
-          padding: '15px',
-          pointerEvents: 'none',
+          padding: '0', // Sin padding para que la imagen llene todo
+          pointerEvents: 'auto', // Habilitar eventos de puntero para clic
           opacity: cardOpacity, // Aplicar opacidad del carrusel vertical
-          background: 'transparent',
+          background: card.backgroundImage 
+            ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url(${card.backgroundImage})`
+            : 'rgba(255, 255, 255, 0.85)', // Ligeramente más transparente
+          backgroundSize: card.backgroundImage ? 'cover' : 'auto',
+          backgroundPosition: card.backgroundImage ? 'center' : 'initial',
+          backgroundRepeat: card.backgroundImage ? 'no-repeat' : 'initial',
           borderRadius: '12px',
           fontFamily: 'system-ui, -apple-system, sans-serif',
           overflow: 'hidden',
-          transition: 'width 0.8s cubic-bezier(0.4, 0.0, 0.2, 1), height 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición más suave y elegante
-          boxShadow: centerProgress > 0 ? `0 ${8 + centerProgress * 20}px ${16 + centerProgress * 30}px rgba(0, 0, 0, 0.1)` : 'none', // Sombra elegante cuando está centrada
+          border: 'none',
+          boxSizing: 'border-box',
+          transform: `scale(${1 + centerProgress * 0.15})`, // Escala aplicada aquí
+          transition: 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición más suave y elegante
+          boxShadow: centerProgress > 0 
+            ? `0 ${8 + centerProgress * 20}px ${16 + centerProgress * 30}px rgba(0, 0, 0, 0.2)` 
+            : card.backgroundImage 
+              ? '0 4px 8px rgba(0, 0, 0, 0.15)' 
+              : '0 2px 4px rgba(0, 0, 0, 0.1)', // Sombra elegante
+          cursor: 'pointer', // Mostrar cursor de puntero
         }}
+        onClick={handleCardClick}
       >
         <div style={{
-          transform: `scale(${1 + centerProgress * 0.15})`, // Escala adicional más notoria del contenido
-          transition: 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición más elegante
+          width: '100%',
+          height: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
+          padding: '16px',
+          boxSizing: 'border-box',
         }}>
           {/* Icono con efecto 3D */}
           <div style={{
-            marginBottom: '15px',
-            padding: `${14 + centerProgress * 6}px`, // Padding más dinámico
+            marginBottom: '10px',
+            padding: '10px',
             borderRadius: '50%',
-            background: `${card.color}${15 + Math.round(centerProgress * 15)}`, // Fondo más intenso cuando está centrada
+            background: card.backgroundImage 
+              ? `rgba(255, 255, 255, 0.15)` 
+              : `${card.color}20`, // Fondo transparente si hay imagen, color de la card si no
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            transition: 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1), padding 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición elegante
-            boxShadow: `0 ${2 + centerProgress * 8}px ${8 + centerProgress * 16}px ${card.color}${20 + Math.round(centerProgress * 40)}`, // Sombra más dinámica
-            transform: `scale(${1 + centerProgress * 0.2})` // Escala más notoria del icono cuando está centrada
+            backdropFilter: card.backgroundImage ? 'blur(4px)' : 'none',
+            border: card.backgroundImage ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
+            boxShadow: card.backgroundImage 
+              ? `0 4px 12px rgba(0, 0, 0, 0.3)` 
+              : `0 2px 8px ${card.color}30`,
           }}>
             <Icon 
-              size={26} 
-              color={card.color} // Color fijo
+              size={20}
+              color={card.backgroundImage ? '#ffffff' : card.color}
             />
           </div>
 
           {/* Título */}
           <h2 style={{
-            fontSize: '18px', // Tamaño fijo, el crecimiento viene del contenedor
-            fontWeight: '800',
-            margin: '0 0 10px 0',
-            color: '#1f2937',
-            letterSpacing: '-0.3px',
+            fontSize: '15px',
+            fontWeight: '700',
+            margin: '0 0 6px 0',
+            color: card.backgroundImage ? '#ffffff' : '#1f2937',
+            letterSpacing: '-0.2px',
+            textShadow: card.backgroundImage ? '1px 1px 3px rgba(0, 0, 0, 0.7)' : 'none',
           }}>
             {card.title}
           </h2>
 
           {/* Descripción */}
           <p style={{
-            fontSize: '12px', // Tamaño fijo
-            color: '#6b7280',
-            margin: '0 0 12px 0',
-            fontWeight: '600',
-            lineHeight: '1.3',
+            fontSize: '10px',
+            color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#6b7280',
+            margin: '0 0 8px 0',
+            fontWeight: '500',
+            lineHeight: '1.2',
+            textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
           }}>
             {card.description}
           </p>
 
-          {/* Contenido */}
-          <p style={{
-            fontSize: '10px', // Tamaño fijo
-            color: '#374151',
+          {/* Contenido / Botón "Ver más" */}
+          <div style={{
+            fontSize: '8px',
+            color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#374151',
             margin: '0',
-            lineHeight: '1.4',
-            maxWidth: '90%', // Usar porcentaje para mejor ajuste
-            wordWrap: 'break-word', // Permitir corte de palabras
+            lineHeight: '1.3',
+            maxWidth: '90%',
+            wordWrap: 'break-word',
+            textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
+            padding: '4px 8px',
+            border: card.backgroundImage 
+              ? '1px solid rgba(255, 255, 255, 0.3)' 
+              : `1px solid ${card.color}40`,
+            borderRadius: '12px',
+            background: card.backgroundImage 
+              ? 'rgba(255, 255, 255, 0.1)' 
+              : `${card.color}10`,
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            backdropFilter: card.backgroundImage ? 'blur(2px)' : 'none',
+            fontWeight: '600',
+            textAlign: 'center' as const,
           }}>
             {card.content}
-          </p>
+          </div>
 
           {/* Línea decorativa */}
           <div style={{
-            width: '30px', // Ancho fijo
+            width: '20px',
             height: '2px',
-            background: `linear-gradient(90deg, ${card.color}, ${card.color}80)`,
-            margin: '15px auto 0',
+            background: card.backgroundImage 
+              ? 'linear-gradient(90deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3))' 
+              : `linear-gradient(90deg, ${card.color}, ${card.color}60)`,
+            margin: '10px auto 0',
             borderRadius: '1px',
+            boxShadow: card.backgroundImage ? '0 1px 2px rgba(0, 0, 0, 0.5)' : 'none',
           }} />
         </div>
       </Html>

@@ -49,45 +49,6 @@ function AvatarModel() {
   )
 }
 
-// Componente de partículas de fondo
-function FloatingParticles() {
-  const particlesRef = useRef<THREE.Points>(null)
-  
-  useFrame((state) => {
-    if (particlesRef.current) {
-      particlesRef.current.rotation.y += 0.0005
-      particlesRef.current.rotation.x += 0.0002
-    }
-  })
-
-  const particleCount = 100
-  const positions = new Float32Array(particleCount * 3)
-  
-  for (let i = 0; i < particleCount; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * 50
-    positions[i * 3 + 1] = (Math.random() - 0.5) * 50
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 50
-  }
-
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          args={[positions, 3]}
-        />
-      </bufferGeometry>
-      <pointsMaterial 
-        size={0.05} 
-        color="#4f46e5" 
-        transparent 
-        opacity={0.6}
-        sizeAttenuation={true}
-      />
-    </points>
-  )
-}
-
 function ModelFallback() {
   return (
     <mesh>
@@ -111,49 +72,20 @@ function Scene3D() {
 
   return (
     <>
-      {/* Iluminación mejorada para el avatar */}
-      <ambientLight intensity={0.4} />
+      {/* Iluminación suave sin destellos */}
+      <ambientLight intensity={0.8} />
       <directionalLight 
         position={[10, 15, 8]} 
-        intensity={1.5} // Luz más intensa
+        intensity={0.6} // Intensidad reducida para evitar destellos
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
+        shadow-mapSize-width={1024}
+        shadow-mapSize-height={1024}
         shadow-camera-far={50}
         shadow-camera-left={-15}
         shadow-camera-right={15}
         shadow-camera-top={15}
         shadow-camera-bottom={-15}
       />
-      
-      {/* Luces de colores para ambiente */}
-      <pointLight position={[-10, 0, 10]} intensity={0.8} color="#3b82f6" />
-      <pointLight position={[10, 0, -10]} intensity={0.8} color="#8b5cf6" />
-      <pointLight position={[0, 12, 0]} intensity={0.6} color="#10b981" />
-      
-      {/* Spotlight principal en el avatar súper gigante */}
-      <spotLight
-        position={[0, 35, 25]} // Posición ajustada para avatar súper gigante más grande
-        angle={0.7} // Ángulo ligeramente más amplio
-        penumbra={0.3}
-        intensity={4.0} // Intensidad mayor para avatar súper gigante más grande
-        color="#ffffff"
-        target-position={[0, -3, 0]} // Target centrado en el avatar súper gigante más grande
-        castShadow
-      />
-      
-      {/* Luz de relleno desde abajo */}
-      <pointLight position={[0, -15, 15]} intensity={1.0} color="#ffffff" />
-      
-      {/* Luz trasera para crear silueta */}
-      <directionalLight 
-        position={[0, 15, -25]} // Posición ajustada para avatar súper gigante más grande
-        intensity={1.2} // Intensidad aumentada
-        color="#4f46e5"
-      />
-      
-      {/* Partículas de fondo */}
-      <FloatingParticles />
       
       {/* Avatar principal (estático) */}
       <Suspense fallback={<ModelFallback />}>
@@ -163,12 +95,12 @@ function Scene3D() {
       {/* Tarjetas del portafolio con efecto de papel remolino */}
       <FloatingCards cameraAngle={cameraAngle} />
       
-      {/* Sombras de contacto ajustadas para avatar más grande */}
+      {/* Sombras de contacto suaves */}
       <ContactShadows 
         position={[0, -7, 0]} // Posición bajo el avatar
-        opacity={0.4} 
+        opacity={0.2} 
         scale={25} // Escala proporcional para avatar más grande
-        blur={4} 
+        blur={6} 
         far={18} // Aumentado para avatar más grande
       />
       
