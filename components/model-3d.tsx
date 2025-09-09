@@ -126,13 +126,17 @@ function Scene3D() {
   )
 }
 
-export function Model3D() {
+export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
   return (
     <motion.div 
       className="w-full h-full"
       initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      animate={{ opacity: isModalOpen ? 0 : 1 }}
+      transition={{ duration: 0.3 }}
+      style={{ 
+        pointerEvents: isModalOpen ? 'none' : 'auto',
+        visibility: isModalOpen ? 'hidden' : 'visible'
+      }}
     >
       <Canvas
         camera={{ position: [0, 0, 25], fov: 60 }} // Cámara ajustada

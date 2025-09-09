@@ -5,7 +5,7 @@ import { Github, Linkedin, Mail } from "lucide-react"
 import { Model3D } from "./model-3d"
 import { motion } from "framer-motion"
 
-export function HeroSectionNew() {
+export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function HeroSectionNew() {
         <motion.h1 
           className="text-3xl md:text-5xl font-bold text-white mb-2"
           initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
+          animate={{ x: 0, opacity: isModalOpen ? 0.3 : 1 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
           Diego Steven
@@ -35,7 +35,7 @@ export function HeroSectionNew() {
         <motion.p 
           className="text-sm md:text-lg text-gray-300 max-w-xs"
           initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
+          animate={{ x: 0, opacity: isModalOpen ? 0.3 : 1 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
           Full Stack Developer & Software Engineering Student
@@ -44,15 +44,15 @@ export function HeroSectionNew() {
 
       {/* Escena 3D principal */}
       <div className="w-full h-full">
-        <Model3D />
+        <Model3D isModalOpen={isModalOpen} />
       </div>
 
       {/* Instrucciones de navegación */}
       <motion.div 
         className="absolute bottom-4 left-4 text-white/60 text-sm z-20"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1, delay: 1 }}
+        animate={{ opacity: isModalOpen ? 0.2 : 1 }}
+        transition={{ duration: 0.3 }}
       >
         <p>🖱️ Arrastra para rotar • 🖱️ Scroll para zoom</p>
         <p>✨ Pasa el cursor sobre las tarjetas</p>
@@ -62,8 +62,8 @@ export function HeroSectionNew() {
       <motion.div 
         className="absolute bottom-4 right-4 flex gap-3 z-20"
         initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 1, delay: 0.8 }}
+        animate={{ x: 0, opacity: isModalOpen ? 0.2 : 1 }}
+        transition={{ duration: isModalOpen ? 0.3 : 1, delay: isModalOpen ? 0 : 0.8 }}
       >
         <motion.a
           href="https://github.com/DiegoSteven"

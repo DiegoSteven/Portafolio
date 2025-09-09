@@ -97,33 +97,30 @@ export const portfolioCards: PortfolioCard[] = [
 ]
 
 // Componente individual para cada tarjeta del carrusel 3D con órbita fija
-function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle: number }) {
+function FloatingCard({ card, cameraAngle }: { 
+  card: PortfolioCard, 
+  cameraAngle: number
+}) {
   const meshRef = useRef<THREE.Group>(null)
   const cardRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
   
   // Función para manejar el clic en la tarjeta
   const handleCardClick = () => {
-    // Mapear los IDs de las tarjetas a los IDs de las secciones
-    const sectionMap: { [key: string]: string } = {
-      'about': 'sobre-mi',
-      'experience': 'experiencia', 
-      'skills': 'habilidades',
-      'projects': 'proyectos',
-      'education': 'educacion',
-      'contact': 'contacto'
+    // Disparar evento personalizado para cada tarjeta
+    const eventMap: { [key: string]: string } = {
+      'about': 'openAboutModal',
+      'experience': 'openExperienceModal',
+      'skills': 'openSkillsModal',
+      'projects': 'openProjectsModal',
+      'education': 'openEducationModal',
+      'contact': 'openContactModal'
     }
     
-    const targetSection = sectionMap[card.id]
-    if (targetSection) {
-      // Scroll suave a la sección correspondiente
-      const element = document.getElementById(targetSection)
-      if (element) {
-        element.scrollIntoView({ 
-          behavior: 'smooth',
-          block: 'start'
-        })
-      }
+    const eventName = eventMap[card.id]
+    if (eventName) {
+      const event = new CustomEvent(eventName)
+      window.dispatchEvent(event)
     }
   }
   
@@ -353,28 +350,34 @@ function FloatingCard({ card, cameraAngle }: { card: PortfolioCard, cameraAngle:
           </p>
 
           {/* Contenido / Botón "Ver más" */}
-          <div style={{
-            fontSize: '8px',
-            color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#374151',
-            margin: '0',
-            lineHeight: '1.3',
-            maxWidth: '90%',
-            wordWrap: 'break-word',
-            textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
-            padding: '4px 8px',
-            border: card.backgroundImage 
-              ? '1px solid rgba(255, 255, 255, 0.3)' 
-              : `1px solid ${card.color}40`,
-            borderRadius: '12px',
-            background: card.backgroundImage 
-              ? 'rgba(255, 255, 255, 0.1)' 
-              : `${card.color}10`,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            backdropFilter: card.backgroundImage ? 'blur(2px)' : 'none',
-            fontWeight: '600',
-            textAlign: 'center' as const,
-          }}>
+          <div 
+            style={{
+              fontSize: '8px',
+              color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#374151',
+              margin: '0',
+              lineHeight: '1.3',
+              maxWidth: '90%',
+              wordWrap: 'break-word',
+              textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
+              padding: '4px 8px',
+              border: card.backgroundImage 
+                ? '1px solid rgba(255, 255, 255, 0.3)' 
+                : `1px solid ${card.color}40`,
+              borderRadius: '12px',
+              background: card.backgroundImage 
+                ? 'rgba(255, 255, 255, 0.1)' 
+                : `${card.color}10`,
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              backdropFilter: card.backgroundImage ? 'blur(2px)' : 'none',
+              fontWeight: '600',
+              textAlign: 'center' as const,
+            }}
+            onClick={(e) => {
+              e.stopPropagation()
+              handleCardClick()
+            }}
+          >
             {card.content}
           </div>
 
