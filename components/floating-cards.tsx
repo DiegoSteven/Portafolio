@@ -400,6 +400,70 @@ function FloatingCard({ card, cameraAngle }: {
 
 // Componente principal que contiene todas las tarjetas flotantes
 export function FloatingCards({ cameraAngle }: { cameraAngle: number }) {
+  const [targetCardId, setTargetCardId] = useState<string | null>(null)
+  const orbitControlsRef = useRef<any>(null)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  useEffect(() => {
+    // Escuchar eventos de navegación desde el navbar
+    const handleNavigateToCard = (event: CustomEvent) => {
+      const { cardId } = event.detail
+      setTargetCardId(cardId)
+      navigateToCard(cardId)
+    }
+
+    window.addEventListener('navigateToCard', handleNavigateToCard as EventListener)
+    
+    return () => {
+      window.removeEventListener('navigateToCard', handleNavigateToCard as EventListener)
+    }
+  }, [])
+
+  const navigateToCard = (cardId: string) => {
+    const targetCard = portfolioCards.find(card => card.id === cardId)
+    if (!targetCard) return
+
+    // Calcular el ángulo de la cámara necesario para centrar la carta
+    const targetAngle = targetCard.angle
+    
+    // Calcular la diferencia de ángulo más corta (considerando que es circular)
+    let angleDiff = targetAngle - cameraAngle
+    
+    // Normalizar la diferencia para tomar el camino más corto
+    while (angleDiff > 180) angleDiff -= 360
+    while (angleDiff < -180) angleDiff += 360
+    
+    // Calcular el nuevo ángulo de la cámara
+    const newCameraAngle = cameraAngle + angleDiff
+    
+    // Convertir a radianes para posicionar la cámara
+    const angleRad = (newCameraAngle * Math.PI) / 180
+    const radius = 25 // Radio de la cámara (debe coincidir con la distancia en OrbitControls)
+    
+    const targetX = Math.sin(angleRad) * radius
+    const targetZ = Math.cos(angleRad) * radius
+    const targetY = 8 // Altura de la cámara
+
+    // Dispatch evento para animar la cámara suavemente
+    window.dispatchEvent(new CustomEvent('animateCamera', {
+      detail: { 
+        targetPosition: { x: targetX, y: targetY, z: targetZ },
+        targetCard: cardId,
+        duration: Math.abs(angleDiff) > 90 ? 2.0 : 1.2 // Más tiempo para giros largos
+      }
+    }))
+  }
+
   return (
     <>
       {portfolioCards.map((card, index) => (
