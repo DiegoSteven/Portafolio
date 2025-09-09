@@ -5,73 +5,12 @@ import { Github, Linkedin, Mail } from "lucide-react"
 import { Model3D } from "./model-3d"
 import { motion } from "framer-motion"
 
-// Componente de placeholder mientras decide cargar el modelo
-function Model3DPlaceholder({ onLoad }: { onLoad: () => void }) {
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center relative">
-      {/* Avatar placeholder animado */}
-      <div className="relative">
-        <div className="w-32 h-32 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-2xl animate-pulse">
-          <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center">
-            <div className="w-16 h-16 rounded-full bg-white/30" />
-          </div>
-        </div>
-        
-        {/* Anillos animados */}
-        <div className="absolute inset-0 rounded-full border-2 border-purple-400/30 border-t-purple-400 animate-spin" />
-        <div className="absolute -inset-2 rounded-full border border-blue-400/20 border-b-blue-400 animate-spin" 
-             style={{ animationDuration: '2s', animationDirection: 'reverse' }} />
-      </div>
-      
-      {/* Texto de carga */}
-      <div className="mt-8 text-center">
-        <p className="text-white/70 text-sm mb-2">Experiencia 3D lista</p>
-        <p className="text-white/50 text-xs">Toca para activar</p>
-      </div>
-      
-      {/* Botón para cargar modelo */}
-      <button 
-        onClick={onLoad}
-        className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full text-sm transition-colors duration-300 hover:scale-105 transform"
-      >
-        Activar Modelo 3D
-      </button>
-    </div>
-  )
-}
-
 export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const [isVisible, setIsVisible] = useState(false)
-  const [show3D, setShow3D] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     setIsVisible(true)
-    
-    // Detectar móvil
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    
-    // Auto-cargar en desktop después de 1 segundo
-    const autoLoadTimer = setTimeout(() => {
-      if (!isMobile) { // Solo desktop
-        setShow3D(true)
-      }
-    }, 1000)
-    
-    return () => {
-      clearTimeout(autoLoadTimer)
-      window.removeEventListener('resize', checkMobile)
-    }
   }, [])
-
-  const handle3DLoad = () => {
-    setShow3D(true)
-  }
 
   return (
     <section id="inicio" className="h-screen relative overflow-hidden">
@@ -103,7 +42,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         </motion.p>
       </div>
 
-      {/* Escena 3D principal con lazy loading seguro */}
+      {/* Escena 3D principal */}
       <div className="w-full h-full" style={{
         // Optimizaciones CSS para móviles
         willChange: 'transform',
@@ -111,11 +50,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         backfaceVisibility: 'hidden',
         perspective: '1000px'
       }}>
-        {show3D ? (
-          <Model3D isModalOpen={isModalOpen} />
-        ) : (
-          <Model3DPlaceholder onLoad={handle3DLoad} />
-        )}
+        <Model3D isModalOpen={isModalOpen} />
       </div>
 
       {/* Instrucciones de navegación */}

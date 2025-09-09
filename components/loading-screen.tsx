@@ -22,8 +22,8 @@ export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
   ]
 
   useEffect(() => {
-    const duration = 800 // Reducido a 0.8 segundos para carga más rápida
-    const interval = 40 // Actualizar más frecuente
+    const duration = 1500 // Reducido a 1.5 segundos
+    const interval = 50 // Actualizar cada 50ms
     const steps = duration / interval
     const increment = 100 / steps
 

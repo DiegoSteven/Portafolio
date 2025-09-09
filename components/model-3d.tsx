@@ -14,10 +14,10 @@ function AvatarModel() {
     return null
   }
   
+  const { scene } = useGLTF("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
+  const modelRef = useRef<THREE.Group>(null)
   const [isMobile, setIsMobile] = useState(false)
-  const [modelLoaded, setModelLoaded] = useState(false)
-  const [loadError, setLoadError] = useState(false)
-  
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -27,46 +27,6 @@ function AvatarModel() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  // Intentar cargar el modelo con timeout
-  let scene
-  try {
-    const gltf = useGLTF("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
-    scene = gltf.scene
-    
-    if (scene && !modelLoaded) {
-      setModelLoaded(true)
-    }
-  } catch (error) {
-    console.warn('Error loading 3D model, using fallback:', error)
-    setLoadError(true)
-  }
-
-  const modelRef = useRef<THREE.Group>(null)
-
-  // Si hay error o el modelo no carga, mostrar un placeholder 3D simple
-  if (loadError || !scene) {
-    return (
-      <group ref={modelRef}>
-        <mesh position={[0, -4, 0]}>
-          <cylinderGeometry args={[1.5, 1.5, 3, 8]} />
-          <meshStandardMaterial 
-            color="#4f46e5" 
-            roughness={0.7}
-            metalness={0.3}
-          />
-        </mesh>
-        <mesh position={[0, -2, 0]}>
-          <sphereGeometry args={[1.2, 8, 6]} />
-          <meshStandardMaterial 
-            color="#6366f1" 
-            roughness={0.5}
-            metalness={0.2}
-          />
-        </mesh>
-      </group>
-    )
-  }
 
   useFrame((state) => {
     if (modelRef.current) {
@@ -83,7 +43,7 @@ function AvatarModel() {
   useEffect(() => {
     if (scene) {
       // Optimizar materiales para mejor rendimiento, especialmente en móviles
-      scene.traverse((child: any) => {
+      scene.traverse((child) => {
         if (child instanceof THREE.Mesh) {
           child.castShadow = !isMobile // Sin sombras en móviles
           child.receiveShadow = !isMobile
@@ -322,14 +282,5 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
   )
 }
 
-// Preload the model solo en desktop y con conexión rápida
-if (typeof window !== 'undefined') {
-  // Solo precargar en desktop con buena conexión
-  const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection
-  const isSlowConnection = connection && (connection.effectiveType === 'slow-2g' || connection.effectiveType === '2g')
-  const isMobile = window.innerWidth < 768
-  
-  if (!isMobile && !isSlowConnection) {
-    useGLTF.preload("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
-  }
-}
+// Preload the model
+useGLTF.preload("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
