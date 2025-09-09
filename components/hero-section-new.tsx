@@ -3,14 +3,36 @@
 import { useEffect, useState } from "react"
 import { Github, Linkedin, Mail } from "lucide-react"
 import { Model3D } from "./model-3d"
+import { StaticModel3D } from "./static-model-3d"
+import { HorizontalCarousel } from "./horizontal-carousel"
 import { motion } from "framer-motion"
+import { useDevicePerformance } from "@/hooks/use-device-performance"
 
 export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const [isVisible, setIsVisible] = useState(false)
+  const devicePerformance = useDevicePerformance()
 
   useEffect(() => {
     setIsVisible(true)
   }, [])
+
+  // Función para manejar clicks en el carrusel horizontal
+  const handleCarouselCardClick = (cardId: string) => {
+    // Disparar el evento correspondiente para abrir el modal
+    const eventMap: { [key: string]: string } = {
+      about: 'openAboutModal',
+      experience: 'openExperienceModal',
+      skills: 'openSkillsModal',
+      projects: 'openProjectsModal',
+      education: 'openEducationModal',
+      contact: 'openContactModal'
+    }
+    
+    const eventName = eventMap[cardId]
+    if (eventName) {
+      window.dispatchEvent(new CustomEvent(eventName))
+    }
+  }
 
   return (
     <section id="inicio" className="h-screen relative overflow-hidden">
@@ -42,27 +64,49 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         </motion.p>
       </div>
 
-      {/* Escena 3D principal */}
-      <div className="w-full h-full" style={{
-        // Optimizaciones CSS para móviles
-        willChange: 'transform',
-        transform: 'translateZ(0)', // Forzar aceleración por hardware
-        backfaceVisibility: 'hidden',
-        perspective: '1000px'
-      }}>
-        <Model3D isModalOpen={isModalOpen} />
-      </div>
+      {/* Contenido principal adaptativo */}
+      {devicePerformance.shouldUseHorizontalCarousel ? (
+        // Versión optimizada para dispositivos de gama baja
+        <div className="flex flex-col items-center justify-center h-full pt-32 pb-16">
+          {/* Avatar estático */}
+          <div className="w-64 h-64 mb-8">
+            <StaticModel3D />
+          </div>
+          
+          {/* Carrusel horizontal */}
+          <HorizontalCarousel onCardClick={handleCarouselCardClick} />
+          
+          {/* Indicador de modo optimizado */}
+          <div className="text-white/40 text-xs mt-4 text-center">
+            ⚡ Modo optimizado para mejor rendimiento
+          </div>
+        </div>
+      ) : (
+        // Versión completa para dispositivos potentes
+        <>
+          {/* Escena 3D principal */}
+          <div className="w-full h-full" style={{
+            // Optimizaciones CSS para móviles
+            willChange: 'transform',
+            transform: 'translateZ(0)', // Forzar aceleración por hardware
+            backfaceVisibility: 'hidden',
+            perspective: '1000px'
+          }}>
+            <Model3D isModalOpen={isModalOpen} />
+          </div>
 
-      {/* Instrucciones de navegación */}
-      <motion.div 
-        className="absolute bottom-4 left-4 text-white/60 text-sm z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isModalOpen ? 0.2 : 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <p>🖱️ Arrastra para rotar</p>
-        <p>✨ Ver más para ver detalles</p>
-      </motion.div>
+          {/* Instrucciones de navegación */}
+          <motion.div 
+            className="absolute bottom-4 left-4 text-white/60 text-sm z-20"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: isModalOpen ? 0.2 : 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <p>🖱️ Arrastra para rotar</p>
+            <p>✨ Ver más para ver detalles</p>
+          </motion.div>
+        </>
+      )}
 
       {/* Social links en la esquina */}
       <motion.div 

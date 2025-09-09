@@ -53,7 +53,7 @@ export default function Portfolio() {
     <div 
       className="min-h-screen overflow-x-hidden relative"
       style={{
-        backgroundImage: 'url(/fondo.jpg)',
+        backgroundImage: 'url(/cyberpunk.webp)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
