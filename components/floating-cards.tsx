@@ -137,7 +137,7 @@ function FloatingCard({ card, cameraAngle }: {
   
   // Configuración del carrusel circular optimizada para móviles
   const radius = isMobile ? 8 : 10 // Radio más pequeño en móviles
-  const centerPosition = [0, 0.5, 0] // Posición del centro (avatar)
+  const centerPosition = [0, 2, 0] // Posición más alta para mejor separación del avatar
   
   // Posición fija de la tarjeta en el espacio 3D (NO rota con el avatar)
   const fixedAngle = card.angle // Ángulo fijo en el espacio
@@ -172,8 +172,8 @@ function FloatingCard({ card, cameraAngle }: {
     centerProgress = Math.max(0, (15 - normalizedDiff) / 15) // Progreso de 0 a 1
     centerProgress = Math.min(centerProgress, 1) // Asegurar que nunca exceda 1
     
-    // Escala mucho más grande y impactante - máximo 40% de crecimiento
-    centerProgress = centerProgress * 0.40 // 40% de crecimiento máximo (mucho más notorio)
+    // Escala moderada para buen rendimiento - 35% de crecimiento
+    centerProgress = centerProgress * 0.35 // 35% de crecimiento (rendimiento óptimo)
   }
   
   // Calcular la posición Y para el efecto de carrusel vertical (pantalla completa) - más suave

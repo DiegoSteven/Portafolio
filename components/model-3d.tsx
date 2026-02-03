@@ -14,7 +14,7 @@ function AvatarModel() {
     return null
   }
   
-  const { scene } = useGLTF("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
+  const { scene } = useGLTF("/models/avatar+3d+modelo+anime.glb")
   const modelRef = useRef<THREE.Group>(null)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -33,7 +33,7 @@ function AvatarModel() {
       // Solo movimiento de respiración sutil, menos intenso en móviles
       const breatheIntensity = isMobile ? 0.01 : 0.02
       const breathe = Math.sin(state.clock.elapsedTime * 0.5) * breatheIntensity
-      modelRef.current.position.y = -6 + breathe // Posición ajustada
+      modelRef.current.position.y = -1 + breathe // Posición más elevada para que esté sobre las cards
       
       // Avatar siempre mirando al frente
       modelRef.current.rotation.y = 0
@@ -45,15 +45,21 @@ function AvatarModel() {
       // Optimizar materiales para mejor rendimiento, especialmente en móviles
       scene.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          child.castShadow = !isMobile // Sin sombras en móviles
-          child.receiveShadow = !isMobile
+          child.castShadow = false // Sin sombras para mejor rendimiento
+          child.receiveShadow = false
           if (child.material) {
-            // Optimizar materiales en móviles
-            if (isMobile && child.material instanceof THREE.MeshStandardMaterial) {
+            // Optimizar materiales
+            if (child.material instanceof THREE.MeshStandardMaterial) {
               child.material.roughness = 0.8
               child.material.metalness = 0.1
+              // Simplificar calidad de reflexiones
+              child.material.envMapIntensity = 0.5
             }
             child.material.needsUpdate = true
+          }
+          // Optimizar geometría
+          if (child.geometry) {
+            child.geometry.computeVertexNormals()
           }
         }
       })
@@ -64,8 +70,8 @@ function AvatarModel() {
     <group ref={modelRef}>
       <primitive 
         object={scene} 
-        scale={isMobile ? 9 : 11} // Modelo más pequeño en móviles para mejor rendimiento
-        position={[0, -6, 0]} // Posición centrada
+        scale={isMobile ? 10 : 12} // Escala optimizada para máximo rendimiento
+        position={[0, -1, 0]} // Posición elevada para estar sobre las cards
       />
     </group>
   )
@@ -165,28 +171,13 @@ function Scene3D() {
 
   return (
     <>
-      {/* Iluminación optimizada para móviles */}
-      <ambientLight intensity={isMobile ? 1.0 : 0.8} />
-      {!isMobile ? (
-        <directionalLight 
-          position={[10, 15, 8]} 
-          intensity={0.6}
-          castShadow
-          shadow-mapSize-width={1024}
-          shadow-mapSize-height={1024}
-          shadow-camera-far={50}
-          shadow-camera-left={-15}
-          shadow-camera-right={15}
-          shadow-camera-top={15}
-          shadow-camera-bottom={-15}
-        />
-      ) : (
-        <directionalLight 
-          position={[10, 15, 8]} 
-          intensity={0.4}
-          castShadow={false}
-        />
-      )}
+      {/* Iluminación optimizada para máximo rendimiento */}
+      <ambientLight intensity={0.9} />
+      <directionalLight 
+        position={[10, 15, 8]} 
+        intensity={0.5}
+        castShadow={false}
+      />
       
       {/* Avatar principal (estático) */}
       <Suspense fallback={<ModelFallback />}>
@@ -195,20 +186,6 @@ function Scene3D() {
       
       {/* Tarjetas del portafolio con efecto de papel remolino */}
       <FloatingCards cameraAngle={cameraAngle} />
-      
-      {/* Sombras solo en desktop */}
-      {!isMobile && (
-        <ContactShadows 
-          position={[0, -7, 0]}
-          opacity={0.2} 
-          scale={25}
-          blur={6} 
-          far={18}
-        />
-      )}
-      
-      {/* Ambiente */}
-      <Environment preset="city" />
       
       {/* Controles de órbita optimizados para móviles */}
       <OrbitControls 
@@ -276,16 +253,17 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
           fov: isMobile ? 70 : 60 
         }}
         style={{ background: "transparent" }}
-        dpr={[1, isMobile ? 1.5 : 2]} // Reducir DPR en móviles
+        dpr={1} // DPR fijo en 1 para máximo rendimiento
         gl={{ 
-          antialias: !isMobile, // Sin antialiasing en móviles para mejor rendimiento
-          alpha: true
+          antialias: false, // Sin antialiasing para máximo rendimiento
+          alpha: true,
+          powerPreference: "high-performance"
         }}
-        shadows={!isMobile} // Sin sombras en móviles
+        shadows={false} // Sin sombras
         performance={{
-          min: isMobile ? 0.2 : 0.5,
-          max: isMobile ? 0.6 : 1,
-          debounce: isMobile ? 500 : 200
+          min: 0.5,
+          max: 1,
+          debounce: 100
         }}
       >
         <Scene3D />
@@ -295,4 +273,4 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
 }
 
 // Preload the model
-useGLTF.preload("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
+useGLTF.preload("/models/avatar+3d+modelo+anime.glb")
