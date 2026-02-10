@@ -2,7 +2,7 @@
 
 import { Suspense, useRef, useEffect, useState } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
-import { OrbitControls, useGLTF, Environment, ContactShadows } from "@react-three/drei"
+import { OrbitControls, useGLTF } from "@react-three/drei"
 import { motion } from "framer-motion"
 import * as THREE from "three"
 import { FloatingCards } from "./floating-cards"
@@ -92,6 +92,8 @@ function Scene3D() {
   const [isMobile, setIsMobile] = useState(false)
   const { camera, gl } = useThree()
   const orbitControlsRef = useRef<any>(null)
+  const lastAngleUpdateRef = useRef(0)
+  const lastAngleValueRef = useRef(0)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -103,11 +105,19 @@ function Scene3D() {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  useFrame(() => {
+  useFrame((state) => {
     // Calcular el ángulo de la cámara respecto al avatar
     const cameraPosition = camera.position
     const angle = Math.atan2(cameraPosition.x, cameraPosition.z) * (180 / Math.PI)
-    setCameraAngle(angle)
+
+    // Solo actualizar el estado unas ~10 veces por segundo o cuando cambia bastante el ángulo
+    const elapsed = state.clock.elapsedTime
+    const angleDelta = Math.abs(angle - lastAngleValueRef.current)
+    if (angleDelta > 0.5 && elapsed - lastAngleUpdateRef.current > 0.1) {
+      lastAngleValueRef.current = angle
+      lastAngleUpdateRef.current = elapsed
+      setCameraAngle(angle)
+    }
   })
 
   useEffect(() => {
@@ -253,9 +263,10 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
           fov: isMobile ? 70 : 60 
         }}
         style={{ background: "transparent" }}
-        dpr={1} // DPR fijo en 1 para máximo rendimiento
+        // DPR más alto en desktop para texto/imágenes nítidos, moderado en móvil
+        dpr={[1, isMobile ? 1.2 : 1.85]}
         gl={{ 
-          antialias: false, // Sin antialiasing para máximo rendimiento
+          antialias: !isMobile, // Habilitar AA en desktop, desactivar en móvil
           alpha: true,
           powerPreference: "high-performance"
         }}

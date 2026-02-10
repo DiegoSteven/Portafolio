@@ -36,9 +36,12 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
 
   return (
     <section id="inicio" className="h-screen relative overflow-hidden">
-      {/* Fondo con gradiente animado */}
-      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-slate-900 to-black">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-transparent to-transparent"></div>
+      {/* Fondo con imagen */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-green-950">
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-40"
+          style={{ backgroundImage: 'url(/fondolanding.png)' }}
+        ></div>
       </div>
 
       {/* Header con el nombre - posicionado en esquina superior izquierda */}
@@ -50,7 +53,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
           transition={{ duration: 1, delay: 0.2 }}
         >
           Diego Steven
-          <span className="block bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="block bg-gradient-to-r from-yellow-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
             Hidalgo
           </span>
         </motion.h1>
@@ -60,7 +63,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
           animate={{ x: 0, opacity: isModalOpen ? 0.3 : 1 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
-          Full Stack Developer & Software Engineering Student
+          Full Stack Developer & Software Engineering
         </motion.p>
       </div>
 
@@ -119,7 +122,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
           href="https://github.com/DiegoSteven"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white hover:text-gray-900 transition-all duration-300"
+          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-cyan-400/30 flex items-center justify-center text-white hover:bg-cyan-400 hover:text-gray-900 transition-all duration-300"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -129,7 +132,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
           href="https://www.linkedin.com/in/diego-hidalgo-152a15182"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white hover:text-gray-900 transition-all duration-300"
+          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-green-400/30 flex items-center justify-center text-white hover:bg-green-400 hover:text-gray-900 transition-all duration-300"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -137,7 +140,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         </motion.a>
         <motion.a
           href="mailto:diegoshh582@gmail.com"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-white hover:bg-white hover:text-gray-900 transition-all duration-300"
+          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-yellow-400/30 flex items-center justify-center text-white hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >

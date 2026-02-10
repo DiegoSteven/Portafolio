@@ -19,7 +19,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
       title: "Sobre Mí",
       description: "Conoce mi historia y pasión por el desarrollo",
       icon: User,
-      color: "#3b82f6",
+      color: "#22d3ee",
       image: "/placeholder.jpg"
     },
     {
@@ -35,7 +35,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
       title: "Habilidades",
       description: "Tecnologías y herramientas que domino",
       icon: Code,
-      color: "#8b5cf6",
+      color: "#eab308",
       image: "/skills.jpg"
     },
     {
@@ -43,7 +43,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
       title: "Proyectos",
       description: "Mis trabajos más destacados",
       icon: FolderOpen,
-      color: "#ef4444",
+      color: "#facc15",
       image: "/proyectos.jpg"
     },
     {
@@ -51,7 +51,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
       title: "Educación",
       description: "Mi formación académica y certificaciones",
       icon: GraduationCap,
-      color: "#6366f1",
+      color: "#84cc16",
       image: "/educacion.jpg"
     },
     {
@@ -59,7 +59,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
       title: "Contacto",
       description: "¡Hablemos sobre tu próximo proyecto!",
       icon: MessageCircle,
-      color: "#f97316",
+      color: "#06b6d4",
       image: "/contacto.jpg"
     }
   ]
@@ -137,7 +137,7 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="bg-white/10 border-white/30 text-white hover:bg-white/20 mt-auto"
+                      className="bg-yellow-500/20 border-yellow-400/50 text-yellow-300 hover:bg-yellow-500/30 hover:border-yellow-300 mt-auto transition-all"
                     >
                       Ver más
                     </Button>
@@ -175,8 +175,8 @@ export function HorizontalCarousel({ onCardClick }: HorizontalCarouselProps) {
             key={index}
             className={`w-3 h-3 rounded-full transition-all duration-300 ${
               index === currentIndex 
-                ? 'bg-white' 
-                : 'bg-white/30 hover:bg-white/50'
+                ? 'bg-yellow-400' 
+                : 'bg-white/30 hover:bg-yellow-400/50'
             }`}
             onClick={() => goToSlide(index)}
           />

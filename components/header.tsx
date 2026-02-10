@@ -25,12 +25,12 @@ export function Header() {
   }
 
   const navItems = [
-    { id: "about", label: "Sobre Mí", icon: User, color: "#3b82f6" },
+    { id: "about", label: "Sobre Mí", icon: User, color: "#22d3ee" },
     { id: "experience", label: "Experiencia", icon: Briefcase, color: "#10b981" },
-    { id: "skills", label: "Habilidades", icon: Code, color: "#8b5cf6" },
-    { id: "projects", label: "Proyectos", icon: FolderOpen, color: "#ef4444" },
-    { id: "education", label: "Educación", icon: GraduationCap, color: "#6366f1" },
-    { id: "contact", label: "Contacto", icon: MessageCircle, color: "#f97316" }
+    { id: "skills", label: "Habilidades", icon: Code, color: "#eab308" },
+    { id: "projects", label: "Proyectos", icon: FolderOpen, color: "#facc15" },
+    { id: "education", label: "Educación", icon: GraduationCap, color: "#84cc16" },
+    { id: "contact", label: "Contacto", icon: MessageCircle, color: "#06b6d4" }
   ]
 
   const getItemDescription = (itemId: string) => {

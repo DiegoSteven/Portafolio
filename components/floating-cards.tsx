@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, useMemo } from "react"
 import { useFrame } from "@react-three/fiber"
 import { Html } from "@react-three/drei"
 import * as THREE from "three"
@@ -103,7 +103,6 @@ function FloatingCard({ card, cameraAngle }: {
 }) {
   const meshRef = useRef<THREE.Group>(null)
   const cardRef = useRef<THREE.Mesh>(null)
-  const [hovered, setHovered] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -135,22 +134,23 @@ function FloatingCard({ card, cameraAngle }: {
     }
   }
   
-  // Configuración del carrusel circular optimizada para móviles
-  const radius = isMobile ? 8 : 10 // Radio más pequeño en móviles
-  const centerPosition = [0, 2, 0] // Posición más alta para mejor separación del avatar
-  
-  // Posición fija de la tarjeta en el espacio 3D (NO rota con el avatar)
-  const fixedAngle = card.angle // Ángulo fijo en el espacio
-  const angleRad = (fixedAngle * Math.PI) / 180
-  
-  // Posición fija en el círculo (coordenadas absolutas)
-  const fixedX = centerPosition[0] + radius * Math.sin(angleRad)
-  const fixedZ = centerPosition[2] + radius * Math.cos(angleRad)
+  // Configuración del carrusel circular optimizada para móviles (memo para evitar recálculo)
+  const { radius, centerPosition, fixedX, fixedZ, fixedAngle } = useMemo(() => {
+    const r = isMobile ? 8 : 10
+    const center = [0, 2, 0] as const
+    const angle = card.angle
+    const angleRad = (angle * Math.PI) / 180
+    return {
+      radius: r,
+      centerPosition: center,
+      fixedX: center[0] + r * Math.sin(angleRad),
+      fixedZ: center[2] + r * Math.cos(angleRad),
+      fixedAngle: angle,
+    }
+  }, [card.angle, isMobile])
   
   // Calcular qué tan cerca está esta tarjeta de estar frente a la cámara
   // La cámara rota, pero las tarjetas mantienen posiciones fijas
-  const cameraAngleRad = (cameraAngle * Math.PI) / 180
-  
   // Distancia angular entre la dirección de la cámara y esta tarjeta
   // Mejorado para manejar mejor el cruce 0°/360°
   let angleDifference = Math.abs(fixedAngle - cameraAngle)
@@ -164,16 +164,11 @@ function FloatingCard({ card, cameraAngle }: {
   const isSide = normalizedDiff > 15 && normalizedDiff <= 75 // Laterales visibles (rango más pequeño)
   const isBack = normalizedDiff > 75 // Atrás, completamente oculto (más estricto)
   
-  // Calcular progreso suave para transiciones - crecimiento más notorio y elegante
+  // Progreso para estado centrado (sin escalar demasiado para evitar pixelación)
   let centerProgress = 0
-  
-  // Solo aplicar escala en un rango pequeño pero con efecto más visible
   if (normalizedDiff <= 15) {
-    centerProgress = Math.max(0, (15 - normalizedDiff) / 15) // Progreso de 0 a 1
-    centerProgress = Math.min(centerProgress, 1) // Asegurar que nunca exceda 1
-    
-    // Escala moderada para buen rendimiento - 35% de crecimiento
-    centerProgress = centerProgress * 0.35 // 35% de crecimiento (rendimiento óptimo)
+    centerProgress = Math.max(0, (15 - normalizedDiff) / 15)
+    centerProgress = Math.min(centerProgress, 1)
   }
   
   // Calcular la posición Y para el efecto de carrusel vertical (pantalla completa) - más suave
@@ -195,22 +190,11 @@ function FloatingCard({ card, cameraAngle }: {
     }
   }
   
-  const sideProgress = isSide ? Math.max(0, (90 - normalizedDiff) / 60) : 0
-  const backProgress = isBack ? Math.max(0, (180 - normalizedDiff) / 90) : 0
-
-  // Debug para verificar el carrusel vertical de pantalla completa
-  if (card.title === "Experiencia") {
-    console.log(`${card.title} - normalizedDiff: ${normalizedDiff.toFixed(1)}, verticalOffset: ${verticalOffset.toFixed(2)}, opacity: ${cardOpacity.toFixed(2)}`)
-  }
-
   // Animaciones con GSAP cuando cambia el estado
   useEffect(() => {
     if (!gsap) return
-
-  // Las animaciones ahora se manejan directamente en el render
-  // Solo necesitamos detectar cuando cambia el estado para re-renderizar
-
-  }, [isCenter, centerProgress]) // Dependencias simplificadas
+    // Las animaciones se manejan en el render; mantenemos este efecto vacío para conservar la carga perezosa sin spamear renders
+  }, [isCenter, centerProgress])
 
   useFrame((state) => {
     if (meshRef.current && cardRef.current) {
@@ -219,14 +203,14 @@ function FloatingCard({ card, cameraAngle }: {
       // Posición fija en el espacio 3D con efecto de carrusel vertical
       const finalY = centerPosition[1] + verticalOffset // Aplicar desplazamiento vertical
       
-      // Flotación suave y elegante para la card central - más pronunciada
+      // Flotación suave y discreta para no marear ni desenfocar
       let floatOffset = 0
       if (isCenter && centerProgress > 0) {
-        floatOffset = Math.sin(time * 0.8) * 0.2 * centerProgress // Flotación más pronunciada
+        floatOffset = Math.sin(time * 0.8) * 0.12 * centerProgress
       }
       
       // Elevación adicional mucho más notoria para la tarjeta central
-      const elevationOffset = centerProgress * 0.8 // Eleva la tarjeta 0.8 unidades cuando está centrada (mucho más notorio)
+      const elevationOffset = centerProgress * 0.45 // Elevación moderada
       
       // Aplicar posición fija (las tarjetas no siguen al avatar)
       meshRef.current.position.set(fixedX, finalY + floatOffset + elevationOffset, fixedZ)
@@ -247,8 +231,6 @@ function FloatingCard({ card, cameraAngle }: {
   return (
     <group 
       ref={meshRef}
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
       onClick={handleCardClick}
       visible={!isBack && cardOpacity > 0} // Ocultar cuando está detrás del avatar O cuando opacidad es 0
     >
@@ -268,38 +250,48 @@ function FloatingCard({ card, cameraAngle }: {
       <Html
         position={[0, 0, 0.01]} // Posición más cerca del mesh
         transform
-        occlude
+        distanceFactor={isMobile ? 10 : 11}
+        // Desactivar oclusión para ahorrar cálculos de raycasting
+        occlude={false}
         style={{
-          width: `${isMobile ? 200 : 260}px`, // Más pequeño en móviles
-          height: `${isMobile ? 140 : 180}px`, // Más pequeño en móviles 
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
+          touchAction: 'manipulation',
+          width: `${isMobile ? 190 : 230}px`, // Menor tamaño para no escalar y evitar pixelación
+          height: `${isMobile ? 132 : 158}px`,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: card.backgroundImage ? '#ffffff' : '#1f2937', // Texto blanco si hay imagen de fondo
+          color: card.backgroundImage ? '#f8fafc' : '#111827', // Texto más claro para contraste
           textAlign: 'center',
           padding: '0', // Sin padding para que la imagen llene todo
           pointerEvents: 'auto', // Habilitar eventos de puntero para clic
           opacity: cardOpacity, // Aplicar opacidad del carrusel vertical
           background: card.backgroundImage 
-            ? `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), url(${card.backgroundImage})`
-            : 'rgba(255, 255, 255, 0.85)', // Ligeramente más transparente
+            ? `linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.35)), url(${card.backgroundImage})`
+            : 'rgba(255, 255, 255, 0.9)', // Más sólido para que el texto sea nítido
           backgroundSize: card.backgroundImage ? 'cover' : 'auto',
           backgroundPosition: card.backgroundImage ? 'center' : 'initial',
           backgroundRepeat: card.backgroundImage ? 'no-repeat' : 'initial',
           borderRadius: '12px',
-          fontFamily: 'system-ui, -apple-system, sans-serif',
+          fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
           overflow: 'hidden',
           border: 'none',
           boxSizing: 'border-box',
-          transform: `scale(${1 + centerProgress * (isMobile ? 0.08 : 0.15)})`, // Menos escala en móviles
-          transition: 'transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)', // Transición más suave y elegante
+          transform: `scale(${isCenter ? 1 : 0.92})`, // Centro nítido, laterales más pequeños
+          transition: 'transform 0.5s ease, opacity 0.5s ease',
           boxShadow: centerProgress > 0 
             ? `0 ${8 + centerProgress * 20}px ${16 + centerProgress * 30}px rgba(0, 0, 0, 0.2)` 
             : card.backgroundImage 
               ? '0 4px 8px rgba(0, 0, 0, 0.15)' 
               : '0 2px 4px rgba(0, 0, 0, 0.1)', // Sombra elegante
           cursor: 'pointer', // Mostrar cursor de puntero
+          imageRendering: 'auto',
+          filter: 'none',
+          willChange: 'transform, opacity',
         }}
         onClick={handleCardClick}
       >
@@ -324,7 +316,7 @@ function FloatingCard({ card, cameraAngle }: {
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backdropFilter: card.backgroundImage ? 'blur(4px)' : 'none',
+            backdropFilter: 'none',
             border: card.backgroundImage ? '1px solid rgba(255, 255, 255, 0.2)' : 'none',
             boxShadow: card.backgroundImage 
               ? `0 4px 12px rgba(0, 0, 0, 0.3)` 
@@ -339,23 +331,23 @@ function FloatingCard({ card, cameraAngle }: {
           {/* Título */}
           <h2 style={{
             fontSize: '15px',
-            fontWeight: '700',
+            fontWeight: '800',
             margin: '0 0 6px 0',
-            color: card.backgroundImage ? '#ffffff' : '#1f2937',
-            letterSpacing: '-0.2px',
-            textShadow: card.backgroundImage ? '1px 1px 3px rgba(0, 0, 0, 0.7)' : 'none',
+            color: card.backgroundImage ? '#ffffff' : '#0f172a',
+            letterSpacing: '-0.25px',
+            textShadow: card.backgroundImage ? '0 1px 2px rgba(0, 0, 0, 0.55)' : 'none',
           }}>
             {card.title}
           </h2>
 
           {/* Descripción */}
           <p style={{
-            fontSize: '10px',
-            color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#6b7280',
+            fontSize: '11px',
+            color: card.backgroundImage ? 'rgba(255, 255, 255, 0.94)' : '#475569',
             margin: '0 0 8px 0',
-            fontWeight: '500',
-            lineHeight: '1.2',
-            textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
+            fontWeight: '600',
+            lineHeight: '1.3',
+            textShadow: card.backgroundImage ? '0 1px 2px rgba(0, 0, 0, 0.6)' : 'none',
           }}>
             {card.description}
           </p>
@@ -363,26 +355,27 @@ function FloatingCard({ card, cameraAngle }: {
           {/* Contenido / Botón "Ver más" */}
           <div 
             style={{
-              fontSize: '8px',
-              color: card.backgroundImage ? 'rgba(255, 255, 255, 0.9)' : '#374151',
+              fontSize: '9px',
+              color: card.backgroundImage ? 'rgba(255, 255, 255, 0.95)' : '#1f2937',
               margin: '0',
               lineHeight: '1.3',
               maxWidth: '90%',
               wordWrap: 'break-word',
-              textShadow: card.backgroundImage ? '1px 1px 2px rgba(0, 0, 0, 0.7)' : 'none',
-              padding: '4px 8px',
+              textShadow: card.backgroundImage ? '0 1px 2px rgba(0, 0, 0, 0.6)' : 'none',
+              padding: '5px 10px',
               border: card.backgroundImage 
-                ? '1px solid rgba(255, 255, 255, 0.3)' 
+                ? '1px solid rgba(255, 255, 255, 0.35)' 
                 : `1px solid ${card.color}40`,
               borderRadius: '12px',
               background: card.backgroundImage 
-                ? 'rgba(255, 255, 255, 0.1)' 
-                : `${card.color}10`,
+                ? 'rgba(0, 0, 0, 0.25)' 
+                : `${card.color}12`,
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              backdropFilter: card.backgroundImage ? 'blur(2px)' : 'none',
-              fontWeight: '600',
+              backdropFilter: 'none',
+              fontWeight: '700',
               textAlign: 'center' as const,
+              userSelect: 'none',
             }}
             onClick={(e) => {
               e.stopPropagation()
@@ -411,8 +404,6 @@ function FloatingCard({ card, cameraAngle }: {
 
 // Componente principal que contiene todas las tarjetas flotantes
 export function FloatingCards({ cameraAngle }: { cameraAngle: number }) {
-  const [targetCardId, setTargetCardId] = useState<string | null>(null)
-  const orbitControlsRef = useRef<any>(null)
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
@@ -429,7 +420,6 @@ export function FloatingCards({ cameraAngle }: { cameraAngle: number }) {
     // Escuchar eventos de navegación desde el navbar
     const handleNavigateToCard = (event: CustomEvent) => {
       const { cardId } = event.detail
-      setTargetCardId(cardId)
       navigateToCard(cardId)
     }
 
