@@ -105,8 +105,6 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
             animate={{ opacity: isModalOpen ? 0.2 : 1 }}
             transition={{ duration: 0.3 }}
           >
-            <p>🖱️ Arrastra para rotar</p>
-            <p>✨ Ver más para ver detalles</p>
           </motion.div>
         </>
       )}
