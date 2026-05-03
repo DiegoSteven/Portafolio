@@ -4,17 +4,18 @@ import { Noto_Sans_JP } from "next/font/google"
 import { useRouter } from "next/navigation"
 import { Github, Linkedin, Mail } from "lucide-react"
 
-const notoSansJp = Noto_Sans_JP({
-  weight: ["700"],
-  subsets: ["latin"],
-  display: "swap",
-})
 import { Model3D } from "./model-3d"
 import { StaticModel3D } from "./static-model-3d"
 import { HorizontalCarousel } from "./horizontal-carousel"
 import { motion } from "framer-motion"
 import { useDevicePerformance } from "@/hooks/use-device-performance"
 import { sectionHref } from "@/lib/section-routes"
+
+const notoSansJp = Noto_Sans_JP({
+  weight: ["700"],
+  subsets: ["latin"],
+  display: "swap",
+})
 
 export function HeroSectionNew() {
   const devicePerformance = useDevicePerformance()
@@ -34,10 +35,10 @@ export function HeroSectionNew() {
         ></div>
       </div>
 
-      {/* Nombre por encima del canvas (z-40) para que nada lo tape; sombras para leer sobre el fondo */}
-      <div className="pointer-events-none absolute left-6 top-24 z-40 pr-4 sm:left-8 sm:top-28">
+      {/* Nombre: en móvil un poco más arriba y tipografía más compacta para no chocar con las tarjetas 3D */}
+      <div className="pointer-events-none absolute left-4 top-[4.25rem] z-40 max-w-[min(92vw,16rem)] pr-2 sm:left-8 sm:top-24 sm:max-w-none md:top-28">
         <motion.h1
-          className="mb-2 text-3xl font-bold md:text-5xl"
+          className="mb-1 text-2xl font-bold sm:mb-2 sm:text-3xl md:text-5xl"
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
@@ -50,7 +51,7 @@ export function HeroSectionNew() {
           </span>
         </motion.h1>
         <motion.p
-          className="max-w-xs text-sm text-gray-100 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)] md:text-lg"
+          className="max-w-[13rem] text-xs leading-snug text-gray-100 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)] sm:max-w-xs sm:text-sm md:text-lg"
           initial={{ x: -50, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
@@ -98,7 +99,7 @@ export function HeroSectionNew() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.9, duration: 0.55 }}
-            className={`${notoSansJp.className} pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+min(8vh,3.25rem))] z-30 px-4 pb-1 text-center text-xl font-bold tracking-wider text-white/95 [text-shadow:0_2px_18px_rgba(0,0,0,0.92),0_0_40px_rgba(0,0,0,0.45)] sm:bottom-[calc(env(safe-area-inset-bottom)+min(9vh,3.75rem))] md:bottom-[calc(env(safe-area-inset-bottom)+min(10vh,4.25rem))] md:text-2xl md:tracking-[0.22em] lg:bottom-[calc(env(safe-area-inset-bottom)+min(11vh,4.75rem))]`}
+            className={`${notoSansJp.className} pointer-events-none absolute bottom-[calc(env(safe-area-inset-bottom)+6.35rem)] left-4 right-[10.5rem] z-30 text-center text-lg font-bold tracking-wider text-white/95 [text-shadow:0_2px_18px_rgba(0,0,0,0.92),0_0_40px_rgba(0,0,0,0.45)] sm:inset-x-0 sm:bottom-[calc(env(safe-area-inset-bottom)+min(9vh,3.75rem))] sm:px-4 sm:text-xl md:bottom-[calc(env(safe-area-inset-bottom)+min(10vh,4.25rem))] md:text-2xl md:tracking-[0.22em] lg:bottom-[calc(env(safe-area-inset-bottom)+min(11vh,4.75rem))]`}
           >
             限界を超えろ
           </motion.p>
@@ -115,8 +116,8 @@ export function HeroSectionNew() {
       )}
 
       {/* Social links en la esquina */}
-      <motion.div 
-        className="absolute bottom-24 right-4 z-20 flex gap-3 lg:bottom-4"
+      <motion.div
+        className="absolute bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] right-3 z-[35] flex shrink-0 gap-2.5 sm:bottom-32 sm:right-4 sm:gap-3 lg:bottom-4"
         initial={{ x: 100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 1, delay: 0.8 }}
