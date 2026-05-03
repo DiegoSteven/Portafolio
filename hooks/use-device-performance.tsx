@@ -60,9 +60,11 @@ export function useDevicePerformance() {
       const score = Math.max(0, Math.min(100, 100 - (testTime - 10) * 2))
 
       // Determinar si es dispositivo de gama baja
-      const isLowEnd = 
+      // Nota: muchos móviles reportan 4 núcleos; usar <=4 aquí activaba el modo
+      // "optimizado" en casi todos los teléfonos y quitaba la escena 3D del hero.
+      const isLowEnd =
         memoryGB <= 3 || // 3GB RAM o menos
-        cores <= 4 || // 4 cores o menos
+        (typeof navigator.hardwareConcurrency === "number" && navigator.hardwareConcurrency <= 2) ||
         testTime > 50 || // Test de rendimiento lento
         connectionSpeed === '2g' || connectionSpeed === 'slow-2g' ||
         (isMobile && (

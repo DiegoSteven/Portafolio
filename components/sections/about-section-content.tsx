@@ -57,27 +57,30 @@ export function AboutSectionContent() {
 
           <div className="relative">
             <div className="group relative">
-              <div className="h-96 w-full overflow-hidden border-4 border-black transition-all duration-500 group-hover:border-gray-600">
+              <div className="flex h-96 w-full items-center justify-center overflow-hidden border-4 border-black bg-neutral-900 transition-all duration-500 group-hover:border-gray-600">
                 <img
                   src="/compe.jpg?height=400&width=350"
                   alt="Working setup"
-                  className="h-full w-full object-cover transition-all duration-700 group-hover:rotate-2 group-hover:scale-110"
+                  className="h-full w-full max-h-96 object-contain object-center transition-all duration-700 group-hover:rotate-2 group-hover:scale-110 md:object-cover"
                 />
-                <div className="absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/10" />
+                <div className="pointer-events-none absolute inset-0 bg-black/0 transition-all duration-300 group-hover:bg-black/10" />
               </div>
 
               <div className="absolute -left-4 -top-4 h-8 w-8 border-2 border-black transition-all duration-500 group-hover:rotate-45 group-hover:scale-125" />
               <div className="absolute -bottom-4 -right-4 h-8 w-8 border-2 border-black transition-all duration-500 group-hover:-rotate-45 group-hover:scale-125" />
 
-              <div className="absolute -right-10 top-5 hidden max-w-sm transform border-2 border-black bg-white p-4 transition-all duration-500 hover:rotate-1 hover:scale-105 group-hover:shadow-lg lg:block">
-                <p className="text-sm font-medium leading-snug">
+              {/* Móvil/tablet: cita sobre la imagen (antes solo existía en lg+). Escritorio: tarjeta lateral. */}
+              <div className="absolute inset-x-2 bottom-2 z-10 max-h-[min(48%,13.5rem)] overflow-y-auto rounded-lg border border-white/40 bg-black/60 p-3 shadow-lg backdrop-blur-sm transition-all duration-500 sm:inset-x-3 sm:bottom-3 sm:max-h-[min(46%,15rem)] sm:p-4 lg:inset-x-auto lg:bottom-auto lg:left-auto lg:right-[-2.5rem] lg:top-5 lg:max-h-none lg:max-w-sm lg:overflow-visible lg:rounded-none lg:border-2 lg:border-black lg:bg-white lg:p-4 lg:shadow-none lg:backdrop-blur-none group-hover:lg:shadow-lg">
+                <p className="text-pretty text-xs font-medium leading-snug text-white sm:text-sm lg:text-black">
                   <LetterAnimate
                     text="Código limpio no es vanidad: Es admitir que el software vive en el tiempo, y el tiempo premia lo que otro pueda entender, corregir y extender sin miedo."
                     as="span"
                     whenVisible
+                    rootMargin="0px 0px 5% 0px"
+                    threshold={0.08}
                   />
                 </p>
-                <div className="absolute -left-2 top-4 h-4 w-4 rotate-45 border-b-2 border-l-2 border-black bg-white transition-transform duration-300 group-hover:scale-110" />
+                <div className="absolute -left-2 top-4 hidden h-4 w-4 rotate-45 border-b-2 border-l-2 border-black bg-white transition-transform duration-300 group-hover:scale-110 lg:block" />
               </div>
 
               <div className="absolute -left-6 top-10 h-3 w-3 animate-bounce rounded-full bg-black delay-300" />
