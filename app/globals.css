@@ -68,6 +68,7 @@
   }
   body {
     @apply bg-slate-900 text-foreground;
+    -ms-overflow-style: none;
   }
 }
 
@@ -203,25 +204,166 @@
   animation: fade-in-up 0.6s ease-out;
 }
 
-/* Smooth scrolling */
+/* Scroll nativo; barra oculta; sin scrollbar-gutter (evita franja reservada a la derecha) */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
+  scrollbar-gutter: auto;
+  scrollbar-width: none;
+  /* Menos “rebote” en móvil = menos trabajo de composición al soltar el scroll */
+  overscroll-behavior-y: contain;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
+/* Hero tipográfico: transiciones cortas + capa GPU (sin scroll-snap ni overflow anidado) */
+.section-concept-letter {
+  color: transparent;
+  -webkit-text-stroke: 2px rgba(255, 255, 255, 0.92);
+  text-shadow: none;
+  transform: translateZ(0);
+  transition:
+    transform 0.15s ease-out,
+    color 0.15s ease-out,
+    -webkit-text-stroke-color 0.15s ease-out,
+    text-shadow 0.15s ease-out;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+.section-concept-hover:hover .section-concept-letter {
+  transform: translateZ(0) scale(1.2);
+  color: #fff;
+  -webkit-text-stroke-color: transparent;
+  text-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #555;
+/* Tema oscuro automático para el contenido que antes era “sobre blanco” */
+.section-content-theme .text-gray-900,
+.section-content-theme .text-black {
+  color: #f1f5f9 !important;
+}
+
+.section-content-theme .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+.section-content-theme .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+.section-content-theme .text-gray-500 {
+  color: #64748b !important;
+}
+
+.section-content-theme .text-gray-400 {
+  color: #94a3b8 !important;
+}
+
+.section-content-theme .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+.section-content-theme .bg-white {
+  background-color: rgba(30, 41, 59, 0.72) !important;
+}
+
+.section-content-theme .bg-gray-50 {
+  background-color: rgba(15, 23, 42, 0.65) !important;
+}
+
+.section-content-theme .bg-gray-200 {
+  background-color: rgba(51, 65, 85, 0.85) !important;
+}
+
+.section-content-theme .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.section-content-theme .border-black {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+.section-content-theme .border-indigo-200 {
+  border-color: rgba(129, 140, 248, 0.35) !important;
+}
+
+.section-content-theme .from-indigo-50 {
+  --tw-gradient-from: rgba(49, 46, 129, 0.35) var(--tw-gradient-from-position) !important;
+}
+
+.section-content-theme .to-blue-50 {
+  --tw-gradient-to: rgba(30, 58, 138, 0.3) var(--tw-gradient-to-position) !important;
+}
+
+.section-content-theme .text-indigo-600 {
+  color: #a5b4fc !important;
+}
+
+.section-content-theme .text-indigo-800 {
+  color: #c7d2fe !important;
+}
+
+.section-content-theme .text-green-600 {
+  color: #4ade80 !important;
+}
+
+.section-content-theme .text-green-800 {
+  color: #bbf7d0 !important;
+}
+
+.section-content-theme .bg-green-100 {
+  background-color: rgba(22, 163, 74, 0.22) !important;
+}
+
+.section-content-theme .text-red-600 {
+  color: #f87171 !important;
+}
+
+.section-content-theme .text-red-800 {
+  color: #fecaca !important;
+}
+
+.section-content-theme .bg-red-100 {
+  background-color: rgba(220, 38, 38, 0.2) !important;
+}
+
+.section-content-theme .text-purple-600 {
+  color: #c084fc !important;
+}
+
+.section-content-theme .bg-blue-100,
+.section-content-theme .bg-purple-100,
+.section-content-theme .bg-orange-100,
+.section-content-theme .bg-yellow-100 {
+  background-color: rgba(51, 65, 85, 0.55) !important;
+}
+
+.section-content-theme .text-blue-600 {
+  color: #93c5fd !important;
+}
+
+.section-content-theme .text-orange-600 {
+  color: #fdba74 !important;
+}
+
+.section-content-theme .text-yellow-600 {
+  color: #fde047 !important;
+}
+
+.section-content-theme .hover\:text-black:hover {
+  color: #fff !important;
+}
+
+.section-content-theme .hover\:border-black:hover {
+  border-color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* Letterize + anime.js: cada letra envuelta en span con esta clase */
+.letter-animate-char {
+  display: inline-block;
+  transform-origin: 50% 58%;
 }
