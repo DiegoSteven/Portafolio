@@ -1,53 +1,53 @@
 "use client"
 
-import { useRef, useEffect } from "react"
+import { Suspense, useRef, useEffect } from "react"
 import { Canvas } from "@react-three/fiber"
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei"
-import { useGLTF } from "@react-three/drei"
+import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei"
+import * as THREE from "three"
+import { AVATAR_GLB_PATH } from "@/lib/avatar-model"
 
-// Avatar estático optimizado
+function StaticAvatarFallback() {
+  return (
+    <mesh>
+      <cylinderGeometry args={[0.6, 0.6, 1.2, 12]} />
+      <meshStandardMaterial color="#6366f1" />
+    </mesh>
+  )
+}
+
 function StaticAvatar() {
-  const { scene } = useGLTF("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
-  const avatarRef = useRef<any>(null)
+  const { scene } = useGLTF(AVATAR_GLB_PATH)
+  const avatarRef = useRef<THREE.Group>(null)
 
   useEffect(() => {
-    if (scene) {
-      // Optimizaciones para gama baja
-      scene.traverse((child: any) => {
-        if (child.isMesh) {
-          // Reducir calidad de materiales
-          if (child.material) {
-            child.material.precision = 'lowp'
-            child.castShadow = false
-            child.receiveShadow = false
-          }
-        }
-      })
-    }
+    scene.traverse((child) => {
+      if (!(child instanceof THREE.Mesh) || !child.material) return
+      const apply = (m: THREE.Material) => {
+        m.precision = "lowp"
+      }
+      if (Array.isArray(child.material)) child.material.forEach(apply)
+      else apply(child.material)
+      child.castShadow = false
+      child.receiveShadow = false
+    })
   }, [scene])
 
   return (
-    <primitive 
+    <primitive
       ref={avatarRef}
-      object={scene} 
-      scale={2.5} 
-      position={[0, -3, 0]}
+      object={scene}
+      scale={4.2}
+      position={[0, -1, 0]}
       rotation={[0, 0, 0]}
     />
   )
 }
 
-// Luces optimizadas
 function OptimizedLights() {
   return (
     <>
-      {/* Solo luz ambiental para mejor rendimiento */}
       <ambientLight intensity={0.8} color="#ffffff" />
-      <directionalLight 
-        position={[5, 5, 5]} 
-        intensity={0.3}
-        castShadow={false} // Deshabilitar sombras
-      />
+      <directionalLight position={[5, 5, 5]} intensity={0.3} castShadow={false} />
     </>
   )
 }
@@ -61,28 +61,26 @@ export function StaticModel3D({ className = "" }: StaticModel3DProps) {
     <div className={`w-full h-full ${className}`}>
       <Canvas
         camera={{ position: [0, 0, 8], fov: 50 }}
-        gl={{ 
-          antialias: false, // Deshabilitar antialiasing
+        gl={{
+          antialias: false,
           alpha: true,
-          powerPreference: "low-power", // Optimización de batería
-          precision: "lowp" // Precisión baja para mejor rendimiento
+          powerPreference: "low-power",
+          precision: "lowp",
         }}
-        performance={{ min: 0.2 }} // Permitir FPS más bajos
-        frameloop="demand" // Solo renderizar cuando sea necesario
+        performance={{ min: 0.2 }}
+        frameloop="demand"
       >
         <PerspectiveCamera makeDefault position={[0, 0, 8]} />
-        
         <OptimizedLights />
-        
-        <StaticAvatar />
-        
-        {/* Controles simplificados */}
+        <Suspense fallback={<StaticAvatarFallback />}>
+          <StaticAvatar />
+        </Suspense>
         <OrbitControls
-          enabled={true}
+          enabled
           enablePan={false}
           enableZoom={false}
-          enableRotate={true}
-          autoRotate={false} // Sin auto-rotación para mejor rendimiento
+          enableRotate
+          autoRotate={false}
           rotateSpeed={0.5}
           maxPolarAngle={Math.PI / 1.8}
           minPolarAngle={Math.PI / 3}
@@ -92,5 +90,4 @@ export function StaticModel3D({ className = "" }: StaticModel3DProps) {
   )
 }
 
-// Preload del modelo
-useGLTF.preload("https://models.readyplayer.me/68bed93f8c3845189bf7688e.glb")
+useGLTF.preload(AVATAR_GLB_PATH)

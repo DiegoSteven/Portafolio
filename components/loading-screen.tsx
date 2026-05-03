@@ -1,6 +1,15 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+
+const LOADING_TEXTS = [
+  "Iniciando...",
+  "Cargando...",
+  "Preparando...",
+  "Configurando...",
+  "Finalizando...",
+  "Listo",
+] as const
 
 interface LoadingScreenProps {
   onLoadingComplete?: () => void
@@ -8,23 +17,17 @@ interface LoadingScreenProps {
 
 export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
   const [progress, setProgress] = useState(0)
-  const [isComplete, setIsComplete] = useState(false)
-  const [isVisible, setIsVisible] = useState(true)
+  const [phase, setPhase] = useState<"loading" | "exiting">("loading")
   const [loadingText, setLoadingText] = useState("Cargando...")
 
-  // Textos de carga minimalistas
-  const loadingTexts = [
-    "Iniciando...",
-    "Cargando...",
-    "Preparando...",
-    "Configurando...",
-    "Finalizando...",
-    "Listo"
-  ]
+  const finish = useCallback(() => {
+    setPhase("exiting")
+    globalThis.setTimeout(() => onLoadingComplete?.(), 480)
+  }, [onLoadingComplete])
 
   useEffect(() => {
-    const duration = 1500 // Reducido a 1.5 segundos
-    const interval = 50 // Actualizar cada 50ms
+    const duration = 1500
+    const interval = 50
     const steps = duration / interval
     const increment = 100 / steps
 
@@ -35,107 +38,78 @@ export function LoadingScreen({ onLoadingComplete }: LoadingScreenProps) {
       currentProgress += increment
       setProgress(Math.min(currentProgress, 100))
 
-      // Cambiar texto basado en el progreso
-      const newTextIndex = Math.floor((currentProgress / 100) * loadingTexts.length)
-      if (newTextIndex !== textIndex && newTextIndex < loadingTexts.length) {
+      const newTextIndex = Math.floor((currentProgress / 100) * LOADING_TEXTS.length)
+      if (newTextIndex !== textIndex && newTextIndex < LOADING_TEXTS.length) {
         textIndex = newTextIndex
-        setLoadingText(loadingTexts[textIndex])
+        setLoadingText(LOADING_TEXTS[textIndex])
       }
 
       if (currentProgress >= 100) {
         clearInterval(timer)
-        setIsComplete(true)
-        
-        // Transición de salida más suave
-        setTimeout(() => {
-          setIsVisible(false)
-          // Esperar a que termine la animación antes de notificar
-          setTimeout(() => {
-            onLoadingComplete?.()
-          }, 400)
-        }, 200)
+        setTimeout(finish, 180)
       }
     }, interval)
 
     return () => clearInterval(timer)
-  }, [onLoadingComplete])
-
-  if (!isVisible) return null
+  }, [finish])
 
   return (
-    <div 
-      className={`fixed inset-0 z-50 flex items-center justify-center transition-all duration-500 ease-in-out ${
-        isComplete && !isVisible ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+    <div
+      role="progressbar"
+      aria-valuenow={Math.round(progress)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Cargando portafolio"
+      className={`fixed inset-0 z-[100] flex items-center justify-center ease-out ${
+        phase === "exiting" ? "pointer-events-none opacity-0 duration-500" : "opacity-100 duration-300"
       }`}
       style={{
-        backgroundImage: 'url(/cyberpunk.webp)',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundImage: "url(/cyberpunk.webp)",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundColor: "rgb(2 6 23)",
       }}
     >
-      {/* Overlay oscuro para suavizar el fondo */}
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
-      {/* Contenido minimalista */}
       <div className="relative z-10 flex flex-col items-center space-y-12 px-8">
-        
-        {/* Logo/Avatar minimalista */}
         <div className="relative">
-          <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-              <div className="w-6 h-6 rounded-full bg-white animate-pulse" />
+          <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20">
+              <div className="h-6 w-6 animate-pulse rounded-full bg-white" />
             </div>
           </div>
-          
-          {/* Anillo sutil animado */}
-          <div className="absolute inset-0 rounded-full border border-white/30 animate-ping" 
-               style={{ animationDuration: '2s' }} />
+          <div
+            className="absolute inset-0 animate-ping rounded-full border border-white/30"
+            style={{ animationDuration: "2s" }}
+          />
         </div>
 
-        {/* Texto minimalista */}
         <div className="text-center">
-          <h1 className="text-3xl md:text-4xl font-light text-white mb-2 tracking-wide">
-            Diego Steven
-          </h1>
-          <p className="text-white/60 text-sm font-light tracking-wider uppercase">
-            Full Stack Developer
-          </p>
+          <h1 className="mb-2 text-3xl font-light tracking-wide text-white md:text-4xl">Diego Steven</h1>
+          <p className="text-xs font-light uppercase tracking-wider text-white/60">Full Stack Developer</p>
         </div>
 
-        {/* Barra de progreso minimalista */}
         <div className="w-80 max-w-md">
-          {/* Texto de carga minimalista */}
-          <p className="text-white/50 text-xs mb-6 text-center font-light tracking-wide">
-            {loadingText}
-          </p>
-
-          {/* Barra de progreso simple */}
+          <p className="mb-6 text-center text-xs font-light tracking-wide text-white/50">{loadingText}</p>
           <div className="relative">
-            {/* Fondo de la barra */}
-            <div className="w-full h-px bg-white/20">
-              {/* Barra de progreso */}
+            <div className="h-px w-full bg-white/20">
               <div
-                className="h-full bg-white transition-all duration-300 ease-out relative"
+                className="relative h-full bg-white transition-all duration-300 ease-out"
                 style={{ width: `${progress}%` }}
               >
-                {/* Punto brillante en el extremo */}
-                <div className="absolute right-0 top-0 w-1 h-1 bg-white rounded-full shadow-lg shadow-white/50" />
+                <div className="absolute right-0 top-0 h-1 w-1 rounded-full bg-white shadow-lg shadow-white/50" />
               </div>
             </div>
-
-            {/* Porcentaje minimalista */}
-            <div className="absolute -top-6 right-0 text-white/40 text-xs font-light">
-              {Math.round(progress)}%
-            </div>
+            <div className="absolute -top-6 right-0 text-xs font-light text-white/40">{Math.round(progress)}%</div>
           </div>
         </div>
 
-        {/* Indicador de carga minimalista */}
         <div className="flex space-x-1">
-          <div className="w-1 h-1 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0s' }} />
-          <div className="w-1 h-1 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
-          <div className="w-1 h-1 bg-white/40 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }} />
+          <div className="h-1 w-1 animate-bounce rounded-full bg-white/40" style={{ animationDelay: "0s" }} />
+          <div className="h-1 w-1 animate-bounce rounded-full bg-white/40" style={{ animationDelay: "0.2s" }} />
+          <div className="h-1 w-1 animate-bounce rounded-full bg-white/40" style={{ animationDelay: "0.4s" }} />
         </div>
       </div>
     </div>

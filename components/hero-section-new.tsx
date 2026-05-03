@@ -1,37 +1,27 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Noto_Sans_JP } from "next/font/google"
+import { useRouter } from "next/navigation"
 import { Github, Linkedin, Mail } from "lucide-react"
+
+const notoSansJp = Noto_Sans_JP({
+  weight: ["700"],
+  subsets: ["latin"],
+  display: "swap",
+})
 import { Model3D } from "./model-3d"
 import { StaticModel3D } from "./static-model-3d"
 import { HorizontalCarousel } from "./horizontal-carousel"
 import { motion } from "framer-motion"
 import { useDevicePerformance } from "@/hooks/use-device-performance"
+import { sectionHref } from "@/lib/section-routes"
 
-export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean }) {
-  const [isVisible, setIsVisible] = useState(false)
+export function HeroSectionNew() {
   const devicePerformance = useDevicePerformance()
+  const router = useRouter()
 
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
-
-  // Función para manejar clicks en el carrusel horizontal
   const handleCarouselCardClick = (cardId: string) => {
-    // Disparar el evento correspondiente para abrir el modal
-    const eventMap: { [key: string]: string } = {
-      about: 'openAboutModal',
-      experience: 'openExperienceModal',
-      skills: 'openSkillsModal',
-      projects: 'openProjectsModal',
-      education: 'openEducationModal',
-      contact: 'openContactModal'
-    }
-    
-    const eventName = eventMap[cardId]
-    if (eventName) {
-      window.dispatchEvent(new CustomEvent(eventName))
-    }
+    router.push(sectionHref(cardId))
   }
 
   return (
@@ -44,23 +34,25 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         ></div>
       </div>
 
-      {/* Header con el nombre - posicionado en esquina superior izquierda */}
-      <div className="absolute top-8 left-8 z-20">
-        <motion.h1 
-          className="text-3xl md:text-5xl font-bold text-white mb-2"
+      {/* Nombre por encima del canvas (z-40) para que nada lo tape; sombras para leer sobre el fondo */}
+      <div className="pointer-events-none absolute left-6 top-24 z-40 pr-4 sm:left-8 sm:top-28">
+        <motion.h1
+          className="mb-2 text-3xl font-bold md:text-5xl"
           initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: isModalOpen ? 0.3 : 1 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.2 }}
         >
-          Diego Steven
-          <span className="block bg-gradient-to-r from-yellow-400 via-green-400 to-cyan-400 bg-clip-text text-transparent">
+          <span className="text-white [text-shadow:0_2px_14px_rgba(0,0,0,0.92),0_1px_3px_rgba(0,0,0,0.9)]">
+            Diego Steven
+          </span>
+          <span className="block bg-gradient-to-r from-yellow-400 via-green-400 to-cyan-400 bg-clip-text text-transparent [filter:drop-shadow(0_2px_10px_rgba(0,0,0,0.85))]">
             Hidalgo
           </span>
         </motion.h1>
-        <motion.p 
-          className="text-sm md:text-lg text-gray-300 max-w-xs"
+        <motion.p
+          className="max-w-xs text-sm text-gray-100 [text-shadow:0_1px_8px_rgba(0,0,0,0.85)] md:text-lg"
           initial={{ x: -50, opacity: 0 }}
-          animate={{ x: 0, opacity: isModalOpen ? 0.3 : 1 }}
+          animate={{ x: 0, opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
         >
           Full Stack Developer & Software Engineering
@@ -72,10 +64,19 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         // Versión optimizada para dispositivos de gama baja
         <div className="flex flex-col items-center justify-center h-full pt-32 pb-16">
           {/* Avatar estático */}
-          <div className="w-64 h-64 mb-8">
+          <div className="mb-2 h-64 w-64">
             <StaticModel3D />
           </div>
-          
+          <motion.p
+            lang="ja"
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.5 }}
+            className={`${notoSansJp.className} mb-8 mt-2 text-center text-xl tracking-wider text-white/95 [text-shadow:0_2px_14px_rgba(0,0,0,0.9)] md:text-2xl md:tracking-[0.2em]`}
+          >
+            限界を超えろ
+          </motion.p>
+
           {/* Carrusel horizontal */}
           <HorizontalCarousel onCardClick={handleCarouselCardClick} />
           
@@ -88,21 +89,25 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         // Versión completa para dispositivos potentes
         <>
           {/* Escena 3D principal */}
-          <div className="w-full h-full" style={{
-            // Optimizaciones CSS para móviles
-            willChange: 'transform',
-            transform: 'translateZ(0)', // Forzar aceleración por hardware
-            backfaceVisibility: 'hidden',
-            perspective: '1000px'
-          }}>
-            <Model3D isModalOpen={isModalOpen} />
+          <div className="isolate z-10 h-full w-full [transform:translateZ(0)]">
+            <Model3D />
           </div>
+
+          <motion.p
+            lang="ja"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.9, duration: 0.55 }}
+            className={`${notoSansJp.className} pointer-events-none absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+min(8vh,3.25rem))] z-30 px-4 pb-1 text-center text-xl font-bold tracking-wider text-white/95 [text-shadow:0_2px_18px_rgba(0,0,0,0.92),0_0_40px_rgba(0,0,0,0.45)] sm:bottom-[calc(env(safe-area-inset-bottom)+min(9vh,3.75rem))] md:bottom-[calc(env(safe-area-inset-bottom)+min(10vh,4.25rem))] md:text-2xl md:tracking-[0.22em] lg:bottom-[calc(env(safe-area-inset-bottom)+min(11vh,4.75rem))]`}
+          >
+            限界を超えろ
+          </motion.p>
 
           {/* Instrucciones de navegación */}
           <motion.div 
             className="absolute bottom-4 left-4 text-white/60 text-sm z-20"
             initial={{ opacity: 0 }}
-            animate={{ opacity: isModalOpen ? 0.2 : 1 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
           >
           </motion.div>
@@ -111,16 +116,16 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
 
       {/* Social links en la esquina */}
       <motion.div 
-        className="absolute bottom-4 right-4 flex gap-3 z-20"
+        className="absolute bottom-24 right-4 z-20 flex gap-3 lg:bottom-4"
         initial={{ x: 100, opacity: 0 }}
-        animate={{ x: 0, opacity: isModalOpen ? 0.2 : 1 }}
-        transition={{ duration: isModalOpen ? 0.3 : 1, delay: isModalOpen ? 0 : 0.8 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 1, delay: 0.8 }}
       >
         <motion.a
           href="https://github.com/DiegoSteven"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-cyan-400/30 flex items-center justify-center text-white hover:bg-cyan-400 hover:text-gray-900 transition-all duration-300"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-cyan-400/35 bg-white/25 text-white transition-all duration-300 hover:bg-cyan-400 hover:text-gray-900"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -130,7 +135,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
           href="https://www.linkedin.com/in/diego-hidalgo-152a15182"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-green-400/30 flex items-center justify-center text-white hover:bg-green-400 hover:text-gray-900 transition-all duration-300"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-green-400/35 bg-white/25 text-white transition-all duration-300 hover:bg-green-400 hover:text-gray-900"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -138,7 +143,7 @@ export function HeroSectionNew({ isModalOpen = false }: { isModalOpen?: boolean 
         </motion.a>
         <motion.a
           href="mailto:diegoshh582@gmail.com"
-          className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm border border-yellow-400/30 flex items-center justify-center text-white hover:bg-yellow-400 hover:text-gray-900 transition-all duration-300"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-yellow-400/35 bg-white/25 text-white transition-all duration-300 hover:bg-yellow-400 hover:text-gray-900"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
         >

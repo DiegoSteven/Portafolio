@@ -1,11 +1,12 @@
 "use client"
 
 import { Suspense, useRef, useEffect, useState } from "react"
-import { Canvas, useFrame, useThree } from "@react-three/fiber"
+import { Canvas, useFrame } from "@react-three/fiber"
 import { OrbitControls, useGLTF } from "@react-three/drei"
 import { motion } from "framer-motion"
 import * as THREE from "three"
 import { FloatingCards } from "./floating-cards"
+import { AVATAR_GLB_PATH } from "@/lib/avatar-model"
 
 // Componente del avatar/modelo principal
 function AvatarModel() {
@@ -14,7 +15,7 @@ function AvatarModel() {
     return null
   }
   
-  const { scene } = useGLTF("/models/avatar+3d+modelo+anime.glb")
+  const { scene } = useGLTF(AVATAR_GLB_PATH)
   const modelRef = useRef<THREE.Group>(null)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -88,12 +89,8 @@ function ModelFallback() {
 
 // Componente principal de la escena 3D
 function Scene3D() {
-  const [cameraAngle, setCameraAngle] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
-  const { camera, gl } = useThree()
   const orbitControlsRef = useRef<any>(null)
-  const lastAngleUpdateRef = useRef(0)
-  const lastAngleValueRef = useRef(0)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -104,80 +101,6 @@ function Scene3D() {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
-
-  useFrame((state) => {
-    // Calcular el ángulo de la cámara respecto al avatar
-    const cameraPosition = camera.position
-    const angle = Math.atan2(cameraPosition.x, cameraPosition.z) * (180 / Math.PI)
-
-    // Solo actualizar el estado unas ~10 veces por segundo o cuando cambia bastante el ángulo
-    const elapsed = state.clock.elapsedTime
-    const angleDelta = Math.abs(angle - lastAngleValueRef.current)
-    if (angleDelta > 0.5 && elapsed - lastAngleUpdateRef.current > 0.1) {
-      lastAngleValueRef.current = angle
-      lastAngleUpdateRef.current = elapsed
-      setCameraAngle(angle)
-    }
-  })
-
-  useEffect(() => {
-    // Escuchar eventos de rotación de cámara desde FloatingCards
-    const handleRotateCamera = (event: CustomEvent) => {
-      const { targetCard } = event.detail
-      
-      if (orbitControlsRef.current && typeof window !== 'undefined') {
-        import('gsap').then(({ gsap }) => {
-          // Ángulos exactos de cada tarjeta (en radianes)
-          const cardAngles: { [key: number]: number } = {
-            0: 0,                    // Sobre mí (0°)
-            1: Math.PI / 3,          // Experiencia (60°)
-            2: (2 * Math.PI) / 3,    // Proyectos (120°)
-            3: Math.PI,              // Educación (180°)
-            4: (4 * Math.PI) / 3,    // Habilidades (240°)
-            5: (5 * Math.PI) / 3     // Contacto (300°)
-          }
-          
-          const targetAngle = cardAngles[targetCard]
-          if (targetAngle === undefined) return
-          
-          // Deshabilitar controles durante animación
-          orbitControlsRef.current.enabled = false
-          
-          // Obtener ángulo actual
-          const currentAngle = orbitControlsRef.current.getAzimuthalAngle()
-          
-          // Calcular diferencia más corta
-          let angleDiff = targetAngle - currentAngle
-          if (angleDiff > Math.PI) angleDiff -= 2 * Math.PI
-          if (angleDiff < -Math.PI) angleDiff += 2 * Math.PI
-          
-          // Animar directamente al ángulo objetivo
-          gsap.to(orbitControlsRef.current, {
-            duration: 1.0,
-            ease: "power2.inOut",
-            onUpdate: function() {
-              const progress = this.progress()
-              const newAngle = currentAngle + (angleDiff * progress)
-              orbitControlsRef.current.setAzimuthalAngle(newAngle)
-              orbitControlsRef.current.update()
-            },
-            onComplete: () => {
-              // Asegurar que llegamos exactamente al objetivo
-              orbitControlsRef.current.setAzimuthalAngle(targetAngle)
-              orbitControlsRef.current.update()
-              orbitControlsRef.current.enabled = true
-            }
-          })
-        })
-      }
-    }
-
-    window.addEventListener('rotateCamera', handleRotateCamera as EventListener)
-    
-    return () => {
-      window.removeEventListener('rotateCamera', handleRotateCamera as EventListener)
-    }
-  }, [camera, isMobile])
 
   return (
     <>
@@ -195,7 +118,7 @@ function Scene3D() {
       </Suspense>
       
       {/* Tarjetas del portafolio con efecto de papel remolino */}
-      <FloatingCards cameraAngle={cameraAngle} />
+      <FloatingCards />
       
       {/* Controles de órbita optimizados para móviles */}
       <OrbitControls 
@@ -207,7 +130,7 @@ function Scene3D() {
         maxPolarAngle={Math.PI / 2.2}
         minPolarAngle={Math.PI / 2.2}
         autoRotate={false}
-        dampingFactor={isMobile ? 0.05 : 0.1} // Más suave en móviles
+        dampingFactor={isMobile ? 0.08 : 0.14}
         enableDamping={true}
         target={[0, -2, 0]}
         rotateSpeed={isMobile ? 0.8 : 1.0} // Rotación más lenta en móviles
@@ -222,7 +145,7 @@ function Scene3D() {
   )
 }
 
-export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
+export function Model3D() {
   const [isClient, setIsClient] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
 
@@ -250,12 +173,8 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
     <motion.div 
       className="w-full h-full"
       initial={{ opacity: 0 }}
-      animate={{ opacity: isModalOpen ? 0 : 1 }}
+      animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
-      style={{ 
-        pointerEvents: isModalOpen ? 'none' : 'auto',
-        visibility: isModalOpen ? 'hidden' : 'visible'
-      }}
     >
       <Canvas
         camera={{ 
@@ -263,12 +182,14 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
           fov: isMobile ? 70 : 60 
         }}
         style={{ background: "transparent" }}
-        // DPR más alto en desktop para texto/imágenes nítidos, moderado en móvil
-        dpr={[1, isMobile ? 1.2 : 1.85]}
-        gl={{ 
-          antialias: !isMobile, // Habilitar AA en desktop, desactivar en móvil
+        // DPR moderado: valores altos + scroll del documento suelen sentirse “pesados”
+        dpr={[1, isMobile ? 1.1 : 1.2]}
+        gl={{
+          antialias: !isMobile,
           alpha: true,
-          powerPreference: "high-performance"
+          powerPreference: "high-performance",
+          stencil: false,
+          depth: true,
         }}
         shadows={false} // Sin sombras
         performance={{
@@ -284,4 +205,4 @@ export function Model3D({ isModalOpen = false }: { isModalOpen?: boolean }) {
 }
 
 // Preload the model
-useGLTF.preload("/models/avatar+3d+modelo+anime.glb")
+useGLTF.preload(AVATAR_GLB_PATH)

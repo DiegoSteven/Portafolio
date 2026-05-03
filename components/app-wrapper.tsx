@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { LoadingScreen } from "./loading-screen"
 
 interface AppWrapperProps {
@@ -9,26 +9,13 @@ interface AppWrapperProps {
 
 export function AppWrapper({ children }: AppWrapperProps) {
   const [isLoading, setIsLoading] = useState(true)
-  const [showContent, setShowContent] = useState(false)
-
-  const handleLoadingComplete = () => {
-    // Pequeño delay para asegurar transición suave
-    setTimeout(() => {
-      setIsLoading(false)
-      // Mostrar contenido después de que se oculte la pantalla de carga
-      setTimeout(() => {
-        setShowContent(true)
-      }, 100)
-    }, 200)
-  }
 
   return (
-    <div className="bg-slate-900 min-h-screen">
-      {isLoading && <LoadingScreen onLoadingComplete={handleLoadingComplete} />}
-      {!isLoading && (
-        <div className={`transition-opacity duration-700 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
-          {children}
-        </div>
+    <div className="relative min-h-screen bg-slate-950">
+      {/* Siempre montado debajo del loader: evita el “flash” azul entre carga y contenido */}
+      <div className="relative z-0 min-h-screen">{children}</div>
+      {isLoading && (
+        <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />
       )}
     </div>
   )
