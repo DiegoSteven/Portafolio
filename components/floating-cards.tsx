@@ -125,7 +125,8 @@ function FloatingCard({ card }: { card: PortfolioCard }) {
   // Configuración del carrusel circular optimizada para móviles (memo para evitar recálculo)
   const { centerPosition, fixedX, fixedZ, fixedAngle } = useMemo(() => {
     const r = isMobile ? 8 : 10
-    const center = [0, 2, 0] as const
+    // En móvil el círculo un poco más bajo para separar tarjetas del bloque de nombre (esquina sup. izq.)
+    const center = isMobile ? ([0, 0.35, 0] as const) : ([0, 2, 0] as const)
     const angle = card.angle
     const angleRad = (angle * Math.PI) / 180
     return {
